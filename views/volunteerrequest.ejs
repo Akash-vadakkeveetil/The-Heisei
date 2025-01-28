@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer-Request</title>
+  <link rel="stylesheet" href="donor.css">
+  <style>
+    /* General table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      color: white;
+    }
+  
+    /* Style table rows and cells */
+    .stock-row {
+      color: white;
+    }
+  
+    td {
+      padding: 8px;
+      text-align: center; /* Center-align all cells */
+      border: 1px solid #555; 
+      font-size: 16px;
+    }
+  
+    /* Universal style for all form controls */
+    input, select, textarea {
+      width: 90%; /* Adjust the width for uniformity */
+      padding: 4px;
+      text-align: center;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #ffffff; /* Light background for visibility */
+      color: #333; /* Dark text for readability */
+    }
+  
+    /* Style submit button */
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    input[type="email"] {
+      border: 1px solid #cccccc; /* Same border for all */
+    }
+    /* Center the submit button */
+    .center-submit {
+      text-align: center;
+    }
+    #more-content p {
+    font-size: 18px; /* Larger text */
+    margin-top: 16px;
+    line-height: 0; /* Reduced vertical spacing */
+    margin-bottom: 0px; /* Less vertical gap */
+    color: black; /* Text color */
+  }
+  #more-content {
+    background-color: rgb(177, 176, 176); /* Grey background for the entire container */
+    padding: 15px; /* Add some padding inside the container */
+    border-radius: 10px; /* Rounded corners for the container */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for a lifted effect */
+  }
+  </style>  
+</head>
+<body>
+
+  <nav>
+    <h1>HEISEI</h1>
+    <div id="nav-part2">
+      <a href="volunteerhome.html"><h3>Home</h3></a>
+     <a href="volunteerlist.html"><h3>Supply</h3></a>
+     <a href="volunteerstock.html"><h3>Stock</h3></a>
+     <a href="volunteerrequest.html" class="active"><h3>Requests</h3></a>
+     <a href="volunteerhistory.html"><h3>History</h3></a>
+      <a href="login.html"><h3>LogOut</h3></a>
+      <h2><%= username %> </h2>
+    </div>
+    <script>
+      // Get the token from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      // Update all hyperlinks dynamically
+      document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && token) {
+              link.setAttribute('href', `${href}?token=${token}`);
+          }
+      });
+    </script>
+  </nav>
+
+
+  <div id="page1">
+
+<!-- Popup Box -->
+<div id="popup" style="
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  width: 500px;
+  height: 400px;
+">
+  <button id="close-popup" style="
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+  ">✖</button>
+  <div id="map" style="width: 100%; height: 100%;"></div>
+
+  <div id="address-container"></div> 
+
+  <div id="more-container" style="margin-top: 10px; text-align: center;">
+    <button onclick="toggleMore()" style="background-color: navy; color: white; padding: 3px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">More</button>
+    <div id="more-content" style="display: none; margin-top: 0px; text-align: center;">
+      <!-- More details will be dynamically injected here -->
+    </div>
+  </div>
+
+</div>
+
+<div id="tooltip" style="
+  position: absolute;
+  display: none;
+  background-color: rgb(242, 242, 242);
+  color: rgb(0, 0, 0);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  z-index: 1000;
+  pointer-events: none;">
+</div>
+
+<h1>Requests</h1>
+
+<% if (campsLists && campsLists.length) { %>
+  <% if (level == 'collector') { %>
+    <table style="font-size: 1.6em;" border="1">
+      <thead>
+        <tr style="color:black;">
+          <th style="background-color: #ddd; padding: 5px;">camp username</th>
+          <th style="background-color: #ddd; padding: 5px;">commodity</th>
+          <th style="background-color: #ddd; padding: 5px;">placed on</th>
+          <th style="background-color: #ddd; padding: 5px;">addition required</th>
+          <th style="background-color: #ddd; padding: 5px;">globally collected</th>
+          <th style="background-color: #ddd; padding: 5px;">send to</th>
+          <th style="background-color: #ddd; padding: 5px;">remaining</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (const item of campsLists) { %>
+          <tr class="stock-row" style="color: white;">
+            <td style="background-color: #ffffff; padding: 5px; color: blue; cursor: pointer; position: relative;" 
+            onmouseover="showTooltip(event, 'Click to view map')" 
+            onmouseout="hideTooltip()" onclick="fetchLocation('<%= item.username %>')"><%= item.username %></td>
+            <td style="background-color: #ffffff; padding: 5px; color:black;"><%= item.commodity %></td>
+            <td style="background-color: #ffffff; padding: 5px; color:black;"> 
+              <%= new Date(item.timestamp).toLocaleTimeString('en-US', { hour12: false }) %>, 
+              <%= new Date(item.timestamp).toDateString() %>
+            </td>
+            <td style="background-color: #ffffff; padding: 5px; color:black;"><%= item.additionrequired %></td>
+            <td style="background-color: #ffffff; padding: 5px; color:black;"><%= item.collected %></td>
+            <td style="background-color: #ffffff; padding: 5px; color: blue; cursor: pointer; position: relative;" 
+            onmouseover="showTooltip(event, 'Click to view map')" 
+            onmouseout="hideTooltip()" onclick="fetchLocation('<%= item.sendto %>')"><%= item.sendto %></td>
+            <td style="background-color: #ffffff; padding: 5px; color:black;"><%= item.additionrequired-item.collected %></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  <% } else if (level == 'gatherer') { %>
+    <table style="font-size: 1.6em;" border="1">
+      <thead>
+        <tr style="color:black;">
+          <th style="background-color: #ddd; padding: 5px;">camp username</th>
+          <th style="background-color: #ddd; padding: 5px;">commodity</th>
+          <th style="background-color: #ddd; padding: 5px;">placed on</th>
+          <th style="background-color: #ddd; padding: 5px;">addition required</th>
+          <!-- <th style="background-color: #ddd; padding: 5px;">globally collected</th> -->
+          <th style="background-color: #ddd; padding: 5px;">globally gathered</th>
+          <th style="background-color: #ddd; padding: 5px;">remaining</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (const item of campsLists) { %>
+          <tr class="stock-row" style="color: white;">
+            <td style="background-color: #ffffff; padding: 5px; color: blue; cursor: pointer; position: relative;" 
+            onmouseover="showTooltip(event, 'Click to view map')" 
+            onmouseout="hideTooltip()" onclick="fetchLocation('<%= item.username %>')"><%= item.username %></td>
+            <td style="background-color: #ffffff; padding: 5px; color:black;"><%= item.commodity %></td>
+            <td style="background-color: #ffffff; padding: 5px; color:black;"> 
+              <%= new Date(item.timestamp).toLocaleTimeString('en-US', { hour12: false }) %>, 
+              <%= new Date(item.timestamp).toDateString() %>
+            </td>
+            <td style="background-color: #ffffff; padding: 5px; color:black;"><%= item.additionrequired %></td>
+            <!-- <td style="background-color: #ffffff; padding: 5px; color:black;"><= item.collected %></td> -->
+            <td style="background-color: #ffffff; padding: 5px; color:black;"><%= item.gathered %></td>
+            <td style="background-color: #ffffff; padding: 5px; color:black;"><%= item.additionrequired-item.gathered %></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  <% } %>
+<% } else if (!(campsLists && campsLists.length)) { %>
+  <p>No camp data found.</p>
+<% } %>
+
+
+      <footer class="page-footer">
+        <br><br><br><br><br><br> <br><br><br><br><br><br> <br><br><br><br><br><br> <br><br><br><br><br><br>
+    <p style="color: #2c195e;"> </p>
+    </footer>
+    
+
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdni-6rywX1YSFawE7UIlrs2qzqk7bSNs">
+    </script>
+    <script>
+      async function fetchLocation(username) {
+      try {
+        // Send username to Node.js backend
+        const response = await fetch(`/get-location?username=${username}`);
+        const data = await response.json();
+
+        if (data.latitude && data.longitude) {
+          isPopupOpen = true;
+          // Open the popup
+          const popup = document.getElementById('popup');
+          popup.style.display = 'block';
+
+          // Load Google Maps
+          const map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: data.latitude, lng: data.longitude },
+            zoom: 14,
+          });
+
+          new google.maps.Marker({
+            position: { lat: data.latitude, lng: data.longitude },
+            map: map,
+            title: username,
+          });
+           // Display the addresspinno below the map
+          const addressContainer = document.getElementById('address-container');
+          addressContainer.innerHTML = `<p style="margin-top: 1px; color: black;">Address: ${data.addresspinno}</p>`;
+          // Display "More" container with userDetails
+          const moreContainer = document.getElementById('more-container');
+          const moreContent = document.getElementById('more-content');
+          moreContent.innerHTML = `
+            <p>Username: ${data.userDetails.username}</p>
+            <p>Name: ${data.name}</p>
+            <p>Contact: ${data.contact}</p>
+            <p>Address: ${data.addresspinno}</p>
+          `;
+          moreContainer.style.display = 'block'; // Ensure the container is visible
+        } else {
+          alert('Failed to fetch location.');
+        }
+      } catch (error) {
+        console.error('Error fetching location:', error);
+        alert('An error occurred.');
+      }
+    }
+
+      // Toggle "More" content visibility
+      function toggleMore() {
+      const moreContent = document.getElementById('more-content');
+      if (moreContent.style.display === 'none' || moreContent.style.display === '') {
+        moreContent.style.display = 'block';
+      } else {
+        moreContent.style.display = 'none';
+      }
+    }
+
+    // Close popup functionality
+    document.getElementById('close-popup').addEventListener('click', () => {
+      document.getElementById('popup').style.display = 'none';
+      isPopupOpen = false; 
+    });
+
+    function showTooltip(event, message) {
+      const tooltip = document.getElementById('tooltip');
+      tooltip.style.display = 'block';
+      tooltip.textContent = message;
+      tooltip.style.left = `${event.pageX + 10}px`; // Position slightly to the right of the cursor
+      tooltip.style.top = `${event.pageY + 10}px`;  // Position slightly below the cursor
+    }
+
+    function hideTooltip() {
+      const tooltip = document.getElementById('tooltip');
+      tooltip.style.display = 'none';
+    }
+
+    </script>
+  
+  <script>
+    let isPopupOpen = false;
+    // Function to restore values from sessionStorage upon page load
+    window.onload = function () {
+    function autoRefresh() {
+      if (!isPopupOpen) {
+        location.reload();
+      }
+    }
+    setInterval(autoRefresh, 60000); // Check every 60 seconds
+  };
+  </script>
+
+  </div>
+
+</body>
+</html>
