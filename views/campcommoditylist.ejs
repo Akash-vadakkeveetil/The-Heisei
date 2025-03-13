@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camp-Commodity-List</title>
+  <link rel="stylesheet" href="donor.css">
+</head>
+<body>
+
+  <nav>
+    <h1>HEISEI</h1>
+    <div id="nav-part2">
+      <a href="camplist.html"><h3>Stock</h3></a>
+      <h2><%= username %> </h2>
+    </div>
+    <script>
+      // Get the token from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      // Update all hyperlinks dynamically
+      document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && token) {
+              link.setAttribute('href', `${href}?token=${token}`);
+          }
+      });
+    </script>
+  </nav>
+
+
+  <div id="page1">
+<h1>Commodities</h1>
+
+    <% if (commoditylist && commoditylist.length) { %>
+      <table style="font-size: 1.6em;">
+        <thead>
+          <tr style="color:black;">
+            <th style="background-color: #ddd; padding: 5px;">commodityno</th>
+            <th style="background-color: #ddd; padding: 5px;">commodity</th>
+            <th style="background-color: #ddd; padding: 5px;">unit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const item of commoditylist) { %>
+          <tr class="stock-row" style="color: white;">
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.commodityno %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.commodity %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.unit %></td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% } else if (!commoditylist && commoditylist.length) { %>
+      <p>No data found.</p>
+    <% } %>
+
+    <br>
+    <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer-History</title>
+  <link rel="stylesheet" href="donor.css">
+  <style>
+    /* Preloader styles */
+  #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #2c195e; /* Dark background */
+      display: none; /* Hidden by default */
+      justify-content: center;
+      align-items: center;
+      z-index: 9999; /* Ensure it stays on top */
+    }
+
+    .loader {
+      border: 6px solid #f3f3f3; /* Light border */
+      border-top: 6px solid #4caf50; /* Spinner color */
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <h1>HEISEI</h1>
+    <div id="nav-part2">
+      <a href="volunteerhome.html"><h3>Home</h3></a>
+     <a href="volunteerlist.html"><h3>Supply</h3></a>
+     <a href="volunteerstock.html"><h3>Stock</h3></a>
+     <a href="volunteerrequest.html" class="volunteer-link"><h3>Requests</h3></a>
+     <a href="volunteerseeothers.html" class="volunteer-link"><h3>Search</h3></a>
+     <a href="volunteerhistory.html" class="active"><h3>History</h3></a>
+      <a href="login.html"><h3>LogOut</h3></a>
+      <h2><%= username %> </h2>
+    </div>
+    <script>
+      // Get the token from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      // Update all hyperlinks dynamically
+      document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && token) {
+              link.setAttribute('href', `${href}?token=${token}`);
+          }
+      });
+    </script>
+  </nav>
+
+
+  <div id="page1">
+
+    <div id="preloader">
+      <div class="loader"></div>
+      Loading time depends on your Network Connectivity.
+    </div>
+
+<h1>Send</h1>
+
+    <% if (volunteerSend && volunteerSend.length) { %>
+      <table style="font-size: 1.6em;">
+        <thead>
+          <tr style="color:black;">
+            <th style="background-color: #ddd; padding: 5px;">commodityno</th>
+            <th style="background-color: #ddd; padding: 5px;">commodity</th>
+            <th style="background-color: #ddd; padding: 5px;">quantity</th>
+            <th style="background-color: #ddd; padding: 5px;">unit</th>
+            <th style="background-color: #ddd; padding: 5px;">date</th>
+            <th style="background-color: #ddd; padding: 5px;">sendto</th>
+            <th style="background-color: #ddd; padding: 5px;">status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const item of volunteerSend.reverse()) { %>
+          <tr class="stock-row" style="color: white;">
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.commodityno %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.commodity %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.quantity %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.unit %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;">
+              <%- new Date(item.date).toLocaleDateString('en-US', {
+                weekday: 'short',  // Display abbreviated weekday (e.g., Mon)
+                year: 'numeric',    // Display full year (e.g., 2024)
+                month: 'long',      // Display full month name (e.g., May)
+                day: 'numeric'     // Display numeric day (e.g., 9)
+            }) %> 
+            </td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.sendto %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.status %></td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% } else if (!volunteerSend && volunteerSend.length) { %>
+      <p>No data found.</p>
+    <% } %>
+
+    <br>
+    <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+
+    <script>
+      document.querySelectorAll('.volunteer-link').forEach(link => {
+        link.addEventListener('click', function (event) {
+          document.getElementById('preloader').style.display = 'flex';
+        });
+      });
+    </script>
+  </div>
+
+</body>
+</html>

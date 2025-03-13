@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help</title>
+  <link rel="stylesheet" href="donor.css">
+  <style>
+    /* Universal style for all form controls */
+    input, select, textarea {
+      width: 90%; /* Adjust the width for uniformity */
+      padding: 4px;
+      text-align: center;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #ffffff; /* Light background for visibility */
+      color: #333; /* Dark text for readability */
+    }
+  
+    /* Style submit button */
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    input[type="email"] {
+      border: 1px solid #cccccc; /* Same border for all */
+    }
+    /* Center the submit button */
+    .center-submit {
+      text-align: center;
+    }
+  input[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  width: 150px; /* Adjust width to make it shorter */
+  display: block;
+  margin: 10px auto; /* Centers the button horizontally */
+  padding: 8px 0;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  }
+  #unit:readonly {
+    background-color: #e0e0e0; /* Light gray background when disabled */
+  }
+  form {
+  width: 100%; /* Ensure the form takes full width */
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.form-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  width: 45%;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center; /* Ensures label and input align vertically */
+}
+
+label {
+  font-weight: bold;
+  width: 45.5%; /* Adjust to align with input */
+  margin-right: 10px; /* Space between label and input */
+  text-align: right; /* Align the label text to the right */
+}
+
+input {
+  font-size: 18px;
+  width: 65%; /* Adjust input width */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+
+  </style>
+</head>
+<body>
+
+  <nav>
+    <h1>HEISEI</h1>
+    <div id="nav-part2">
+         <a href="login.html"><h3>Login</h3></a>
+         <h2>Help</h2>
+      </div>
+  </nav>
+
+  <div id="page1">
+
+      <form> 
+        <div class="form-container">
+            <div class="form-group">
+                <label for="adminname">Admin Name:</label>
+                <input type="text" name="adminname" id="adminname" value="<%= adminInfoData.adminname %>" disabled>
+              </div>
+              
+              <div class="form-group">
+                <label for="details">Details:</label>
+                <input type="text" name="details" id="details" value="<%= adminInfoData.details %>" disabled>
+              </div>
+
+              <div class="form-group">
+                <label for="contact">Admin Contact:</label>
+                <input type="tel" name="contact" id="contact" value="<%= adminInfoData.contact %>" readonly>
+              </div>
+              
+              <div class="form-group">
+                <label for="email">Admin E-mail:</label>
+                <input type="email" name="email" id="email" value="<%= adminInfoData.email %>" readonly onclick="sendEmail('<%= adminInfoData.email %>')">
+              </div>
+            </div>  
+              <div class="form-group" style="margin-left: 80px;width: 100%;">
+                <label for="globalDurationParameter">Global Duration Parameter(For Volunteers):</label>
+                <input style="width: 100px;" type="number" name="globalDurationParameter" id="globalDurationParameter" value="<%= adminInfoData.globalDurationParameter %>" disabled>
+              </div>  
+      </form> 
+
+      
+    <br>
+    <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+
+    <script>
+      function sendEmail(email) {
+        window.open(`https://mail.google.com/mail/?view=cm&to=${email}`, '_blank');
+      }
+  </script>
+
+  </div>
+
+</body>
+</html>

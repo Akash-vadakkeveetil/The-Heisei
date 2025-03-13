@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Error</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f5f5f5;
+      font-family: Arial, sans-serif;
+    }
+    iframe {
+      border: none;
+      width: 600px;
+      height: 300px;
+    }
+    p {
+      text-align: center;
+    }
+    .volunteer-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .volunteer-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <iframe src="https://chromedino.com/" title="Dinosaur Game"></iframe>
+    <p>Check network connectivity!</p>
+    <a href="volunteerstock.html" class="volunteer-btn">Try again..</a>
+    <script>
+        // Get the token from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        // Update all hyperlinks dynamically
+        document.querySelectorAll('a').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && token) {
+                link.setAttribute('href', `${href}?token=${token}`);
+            }
+        });
+      </script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,247 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: gilroy;
+  }
+  
+  body{
+    height: 100%;
+    width: 100%;
+    color: white;
+  }
+
+  /***************/
+  nav{
+    position: sticky; /*was fixed*/
+    background-color:#2c195e;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 2.5vw 5vw; /* was 3vw instead of 2.5 */
+    /* changing to scroll:- */
+    top: 0;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    margin: 0;
+  }
+  nav.hidden {
+    transform: translateY(-100%); /* Hide the navbar by moving it off-screen */
+  }
+  body {
+    margin: 0;
+   /* padding-top: 0px; /* Give space for the sticky navbar */ 
+   padding: 0;
+  }
+  /**************/
+
+  nav h1{
+    font-size: 5vh;
+    font-weight: 5vh;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  /* Styling for unvisited links */
+  nav a:link {
+    text-decoration: none; /* Underline style */
+    /* text-decoration-color: white; Underline color */
+  }
+  nav a.active {
+    text-decoration: underline; /* Underline only the active link */
+    text-decoration-color: white; /* Underline color */
+    text-underline-offset: 5px; /* Move underline farther below the text */
+  }  
+  
+  #nav-part2{
+    display: flex;
+    gap: 3vw;
+    /* padding-right: 0.1vw; */
+    color: white;
+  }
+  
+  #nav-part2 button{
+    background-color: rgb(20, 19, 19);
+    width: 120px;
+    height: 30px;
+    font-size: 25px;
+    color: white;
+    border-radius: 50px;
+  }
+  
+  #nav-part2 h3{
+    color:white;
+    font-size: 3vh;
+  }
+  
+  #nav-part2 h3:hover{
+    color: #4CAF50;
+  } 
+  
+ /* Apply to the specific 'Premium feature' link */
+#nav-part2 a.premium-feature h3 {
+  text-decoration: none; /* Remove underline */
+  background: linear-gradient(to right,   #ffffff,#f422b5,#17fb10); /* Gradient background */
+  -webkit-background-clip: text; /* Clip background to text */
+  background-clip: text; /* Standard background-clip */
+  color: transparent; /* Make text transparent so gradient shows through */
+  font-size: 3vh;
+  font-weight: bold; /* Optional: Make it bold */
+  
+  /* Set initial position for animated gradient */
+  background-size: 200% 100%; /* Double the width of the background */
+  animation: gradient-animation 1.7s ease infinite; /* Animate the gradient */
+  
+}
+/* Hover effect for the 'Premium feature' */
+#nav-part2 a.premium-feature h3:hover {
+  color: #4CAF50;
+}
+
+/* Animation for the gradient effect */
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+  #page1{
+    height: 100vh;
+    width: 100%;
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+   /* justify-content: center; 
+    padding-top: 900px; */
+    /***************/
+    justify-content: flex-start; /* Adjust to start content from the top */
+    margin-top: 2.5vw; /* Add a margin equal to the height of the navbar */
+    padding: 20px; /* Optional padding for better layout */
+
+  }
+  
+  #page1 h1
+  {
+    font-weight: 1200;
+    color: black;
+    font-size: 5vh;
+   /* padding-top: 20px;*/
+    padding-bottom: 50px;
+  }
+  
+   #page1 p
+  {
+    text-align: center;
+    font-size: 2vh;
+    margin-top: 3vh;
+  }
+  
+  /* Form Styling */
+  form {
+    display: flex;
+    flex-direction: column;
+    width: 50%; 
+    margin: 0 auto;
+  }
+  
+  label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: black;
+  }
+  
+  input[type="text"],
+  input[type="tel"],
+  input[type="email"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  button[type="submit"] {
+    background-color: #4CAF50; 
+    color: rgb(0, 0, 0);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px; 
+    width: 100px;
+  }
+  .table{
+    color:black;
+    border: 2px solid;
+  }
+  .table tr{
+    border: 1px solid;
+  }
+  .table td{
+    border: 1px solid;
+  }
+  .signup-container {
+    margin-top:190px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+.signup-container h2 {
+    text-align: center;
+}
+
+.signup-container input[type="text"],
+.signup-container input[type="date"],
+.signup-container input[type="tel"],
+.signup-container input[type="number"],
+.signup-container input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+.signup-container input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+.signup-container a {
+    text-decoration: none;
+    color: blue;
+}
+
+.signup-container a:hover {
+    text-decoration: underline;
+}
+
+/* Footer styles */
+.page-footer {
+  background:  #2c195e 100%; /* Two-tone gradient */
+  color: white; /* Text color */
+  text-align: center; /* Center the content */
+  padding: 5% 0; /* Add space inside the footer */
+  font-size: 14px; /* Adjust text size */
+  position: relative; /* Ensure normal positioning */
+  width: 100vw; /* Full viewport width */
+  left: 0; /* Align to the left edge of the screen */
+  right: 0; /* Align to the right edge of the screen */
+  /* box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5); Optional shadow for effect */
+  margin-left: 0; /* Remove centering offset */
+  margin-right: 0; /* Remove centering offset */
+  top:50%;
+  bottom: -100%;
+}

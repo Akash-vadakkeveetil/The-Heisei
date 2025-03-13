@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camp-Info</title>
+  <link rel="stylesheet" href="donor.css">
+  <style>
+    /* General table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      color: white;
+    }
+  
+    /* Style table rows and cells */
+    .stock-row {
+      color: white;
+    }
+  
+    td {
+      padding: 8px;
+      text-align: center; /* Center-align all cells */
+      border: 1px solid #555; 
+      font-size: 16px;
+    }
+  
+    /* Universal style for all form controls */
+    input, select, textarea {
+      width: 90%; /* Adjust the width for uniformity */
+      padding: 4px;
+      text-align: center;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #ffffff; /* Light background for visibility */
+      color: #333; /* Dark text for readability */
+    }
+  
+    /* Style submit button */
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    input[type="email"] {
+      border: 1px solid #cccccc; /* Same border for all */
+    }
+    /* Center the submit button */
+    .center-submit {
+      text-align: center;
+    }
+  input[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  width: 150px; /* Adjust width to make it shorter */
+  display: block;
+  margin: 10px auto; /* Centers the button horizontally */
+  padding: 8px 0;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  }
+  #unit:readonly {
+    background-color: #e0e0e0; /* Light gray background when disabled */
+  }
+  form {
+  width: 100%; /* Ensure the form takes full width */
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.form-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  width: 45%;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center; /* Ensures label and input align vertically */
+}
+
+label {
+  font-weight: bold;
+  width: 45.5%; /* Adjust to align with input */
+  margin-right: 10px; /* Space between label and input */
+  text-align: right; /* Align the label text to the right */
+}
+
+input {
+  font-size: 18px;
+  width: 65%; /* Adjust input width */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+
+  </style>
+</head>
+<body>
+
+  <nav>
+    <h1>HEISEI</h1>
+    <div id="nav-part2">
+      <a href="camphome.html"><h3>Home</h3></a>
+     <a href="camplist.html"><h3>Stock</h3></a>
+     <a href="campvollist.html"><h3>Supply</h3></a>
+     <a href="campinfo.html" class="active"><h3>Info</h3></a>
+     <a href="camphistory.html"><h3>History</h3></a>
+     <a href="login.html"><h3>LogOut</h3></a>
+      <h2><%= username %> </h2>
+    </div>
+    <script>
+      // Get the token from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      // Update all hyperlinks dynamically
+      document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && token) {
+              link.setAttribute('href', `${href}?token=${token}`);
+          }
+      });
+    </script>
+  </nav>
+
+  <div id="page1">
+
+      <h2 style="color:black; margin-bottom: 20px; ">Camp Residents</h2>
+      <form id="camp-residents" action="/campresidents" method="POST" onsubmit="return preventDefaultSubmit()"> 
+        <div class="form-container">
+            <div class="form-group">
+                <label for="infants">Infants (0-1 years):</label>
+                <input type="number" name="infants" id="infants" value="<%= campResidentsDetails.infants %>" placeholder="0" min="0">
+              </div>
+              
+              <div class="form-group">
+                <label for="toddlers">Toddlers (2-4 years):</label>
+                <input type="number" name="toddlers" id="toddlers" value="<%= campResidentsDetails.toddlers %>" placeholder="0" min="0">
+              </div>
+              
+              <div class="form-group">
+                <label for="children">Children (5-12 years):</label>
+                <input type="number" name="children" id="children" value="<%= campResidentsDetails.children %>" placeholder="0" min="0">
+              </div>
+              
+              <div class="form-group">
+                <label for="teens">Teens (13-17 years):</label>
+                <input type="number" name="teens" id="teens" value="<%= campResidentsDetails.teens %>" placeholder="0" min="0">
+              </div>
+              
+              <div class="form-group">
+                <label for="pregnant">Pregnant Women:</label>
+                <input type="number" name="pregnant" id="pregnant" value="<%= campResidentsDetails.pregnant %>" placeholder="0" min="0">
+              </div>
+              
+              <div class="form-group">
+                <label for="lactating">Lactating Women:</label>
+                <input type="number" name="lactating" id="lactating" value="<%= campResidentsDetails.lactating %>" placeholder="0" min="0">
+              </div>
+              
+              <div class="form-group">
+                <label for="young">Young Adults (18-30 years):</label>
+                <input type="number" name="young" id="young" value="<%= campResidentsDetails.young %>" placeholder="0" min="0">
+              </div>
+              
+              <div class="form-group">
+                <label for="adults">Adults (31-45 years):</label>
+                <input type="number" name="adults" id="adults" value="<%= campResidentsDetails.adults %>" placeholder="0" min="0">
+              </div>
+              
+              <div class="form-group">
+                <label for="middle_aged">Middle-Aged Adults (46-60 years):</label>
+                <input type="number" name="middle_aged" id="middle_aged" value="<%= campResidentsDetails.middle_aged %>" placeholder="0" min="0">
+              </div>
+              
+              <div class="form-group">
+                <label for="seniors">Senior Adults (61+ years):</label>
+                <input type="number" name="seniors" id="seniors" value="<%= campResidentsDetails.seniors %>" placeholder="0" min="0">
+              </div>              
+          
+            <input type="hidden" name="token" id="token" value="<%= token %>">
+            <input type="submit" value="Update">
+          </div>          
+      </form> 
+
+      <!--
+      <br><br>
+
+      <h2 style="color:black; margin-bottom: 20px; ">Calculate Required Commodities</h2>
+      <br>
+      <form id="camp-duration" action="/campduration" method="POST" onsubmit="return preventDefaultSubmit()" style="width: 100%; max-width: 600px; padding: 2.5px; border-radius: 10px; background: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+          <div style="width: 85%; margin-bottom: 10px; display: flex; align-items: center;">
+            <label for="duration" style="font-weight: bold; width:100%; margin-right: 10px; text-align: right;">Camp Wind-Down Day:</label>
+            <input type="date" name="duration" id="duration" value="" style="font-size: 18px; width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;"> <!- %= campDuration %> ->
+          </div>
+          <div style="width: 100%; margin-bottom: 2px; display: flex; align-items: center;">
+            <input type="hidden" name="token" id="token" value="< token %>">
+            <input type="submit" value="Calculate" style="font-size: 18px;width: 20%;; padding: 7px 2px; border: none; border-radius: 5px; background-color: #007BFF; color: #fff; cursor: pointer;">
+          </div>
+        </div>
+      </form>
+     -->
+
+      
+    <br>
+    <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+
+
+
+
+<script>
+  // Wait for the DOM content to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+      // Get the form element
+      var form = document.getElementById('camp-residents');
+
+      // Add event listener for form submission
+      form.addEventListener('submit', function(event) {
+        const okCancel = confirm("Do you want to proceed?");
+              if (!okCancel) {
+                event.preventDefault(); // Prevent submission
+                return; 
+              }
+         // event.preventDefault(); // Prevent the default form submission
+      function preventDefaultSubmit() {
+          event.preventDefault();    
+              // Collect form data
+              var formData = new FormData(form);
+              
+              // Log form data to console for debugging (optional)
+              console.log('Form Data:', formData);
+
+              // Send form data to the server using fetch API
+              fetch('/campresidents', {
+                  method: 'POST',
+                  body: formData
+              })
+              .then(response => {
+                  if (response.ok) {
+                      
+                     // window.location.href = "index.html";
+                  }
+                  else{
+                      // Optional: Redirect to login.html after successful signup (handled by app.js)
+                      throw new Error('Network response was not ok');
+                  }
+                  return response.text();
+              })
+              .then(response => response.json()) // Parse JSON response
+              .then(data => {
+                  console.log(data); // Log the response from the server
+                  // Optionally, you can redirect the user to another page upon successful signup
+                  //window.location.href = 'index.html';
+                  if (data.redirectTo) {
+                     // window.location.href = data.redirectTo; // Redirect based on server response
+                      }
+                      else {
+                          console.error('Error:', data.message || 'Unknown error');
+                      }
+              })
+              .catch(error => {
+                  console.error('There was a problem with the fetch operation:', error);
+              });
+              return false;
+  }
+      });
+  });
+   // Prevent default form submission  
+</script>
+  </div>
+
+</body>
+</html>

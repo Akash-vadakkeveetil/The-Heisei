@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donor-Requests</title>
+  <link rel="stylesheet" href="donor.css">
+</head>
+<body>
+
+  <nav>
+    <h1>HEISEI</h1>
+    <div id="nav-part2">
+     <a href="donordonate.html" class="premium-feature"><h3>Donate</h3></a>
+     <a href="donoravailablevol.html"><h3>Back</h3></a>
+     <a href="login.html"><h3>LogOut</h3></a>
+      <h2><%= username %> </h2>
+    </div>
+    <script>
+      // Get the token from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const volusernamedonate = urlParams.get('username');
+      
+      // Update all hyperlinks dynamically
+      document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && token && volusernamedonate) {
+              link.setAttribute('href', `${href}?token=${token}&username=${volusernamedonate}`);
+          }
+      });
+    </script>
+  </nav>
+
+
+  <div id="page1">
+<h1>Needs - <%= volusername %></h1>
+
+    <% if (donorReq && donorReq.length) { %>
+      <table style="font-size: 1.6em;">
+        <thead>
+          <tr style="color:black;">
+            <th style="background-color: #ddd; padding: 5px;">commodity</th>
+            <th style="background-color: #ddd; padding: 5px;">unit</th>
+            <th style="background-color: #ddd; padding: 5px;">needed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const item of donorReq) { %>
+            <% if (item.remaining>0) { %>
+          <tr class="stock-row" style="color: white;">
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.commodity %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.unit %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.remaining %></td>
+          </tr>
+          <% } %>
+          <% } %>
+        </tbody>
+      </table>
+    <% } else if (!donorReq && donorReq.length) { %>
+      <p style="color: black;">No data found.</p>
+    <% } %>
+
+    <br>
+    <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+
+
+  </div>
+
+</body>
+</html>

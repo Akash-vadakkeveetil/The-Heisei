@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin-Info</title>
+  <link rel="stylesheet" href="donor.css">
+  <style>
+    /* Universal style for all form controls */
+    input, select, textarea {
+      width: 90%; /* Adjust the width for uniformity */
+      padding: 4px;
+      text-align: center;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #ffffff; /* Light background for visibility */
+      color: #333; /* Dark text for readability */
+    }
+  
+    /* Style submit button */
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    input[type="email"] {
+      border: 1px solid #cccccc; /* Same border for all */
+    }
+    /* Center the submit button */
+    .center-submit {
+      text-align: center;
+    }
+  input[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  width: 150px; /* Adjust width to make it shorter */
+  display: block;
+  margin: 10px auto; /* Centers the button horizontally */
+  padding: 8px 0;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  }
+  #unit:readonly {
+    background-color: #e0e0e0; /* Light gray background when disabled */
+  }
+  form {
+  width: 100%; /* Ensure the form takes full width */
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.form-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  width: 45%;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center; /* Ensures label and input align vertically */
+}
+
+label {
+  font-weight: bold;
+  width: 45.5%; /* Adjust to align with input */
+  margin-right: 10px; /* Space between label and input */
+  text-align: right; /* Align the label text to the right */
+}
+
+input {
+  font-size: 18px;
+  width: 65%; /* Adjust input width */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+
+  </style>
+</head>
+<body>
+
+  <nav>
+    <h1>HEISEI</h1>
+    <div id="nav-part2">
+        <a href="adminhome.html"><h3>Home</h3></a>
+        <a href="adminreport.html"><h3>Reports</h3></a>
+         <a href="adminusers.html"><h3>Users</h3></a>
+         <a href="admincommodity.html"><h3>Commodity</h3></a>
+         <a href="admininfo.html" class="active"><h3>Info</h3></a>
+         <a href="login.html"><h3>LogOut</h3></a>
+         <h2>Admin</h2>
+      </div>
+    <script>
+      // Get the token from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      // Update all hyperlinks dynamically
+      document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && token) {
+              link.setAttribute('href', `${href}?token=${token}`);
+          }
+      });
+    </script>
+  </nav>
+
+  <div id="page1">
+
+      <form id="admin-info" action="/admininfo" method="POST" onsubmit="return preventDefaultSubmit()"> 
+        <div class="form-container">
+            <div class="form-group">
+                <label for="adminname">Name:</label>
+                <input type="text" name="adminname" id="adminname" value="<%= adminInfoData.adminname %>">
+              </div>
+              
+              <div class="form-group">
+                <label for="details">Details:</label>
+                <input type="text" name="details" id="details" value="<%= adminInfoData.details %>">
+              </div>
+
+              <div class="form-group">
+                <label for="contact">Contact:</label>
+                <input type="tel" name="contact" id="contact" value="<%= adminInfoData.contact %>">
+              </div>
+              
+              <div class="form-group">
+                <label for="email">E-mail:</label>
+                <input type="email" name="email" id="email" value="<%= adminInfoData.email %>">
+              </div>
+            </div>  
+              <div class="form-group" style="margin-left: 80px;width: 100%;">
+                <label for="globalDurationParameter">Global Duration Parameter:</label>
+                <input style="width: 100px;" type="number" name="globalDurationParameter" id="globalDurationParameter" value="<%= adminInfoData.globalDurationParameter %>" min="2">
+              </div>  
+            <input type="hidden" name="token" id="token" value="<%= token %>">
+            <input type="submit" value="Save">    
+      </form> 
+
+      
+    <br>
+    <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+
+
+
+
+<script>
+  // Wait for the DOM content to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+      // Get the form element
+      var form = document.getElementById('admin-info');
+
+      // Add event listener for form submission
+      form.addEventListener('submit', function(event) {
+        const okCancel = confirm("Do you want to proceed?");
+              if (!okCancel) {
+                event.preventDefault(); // Prevent submission
+                return; 
+              }
+         // event.preventDefault(); // Prevent the default form submission
+      function preventDefaultSubmit() {
+          event.preventDefault();    
+              // Collect form data
+              var formData = new FormData(form);
+              
+              // Log form data to console for debugging (optional)
+              console.log('Form Data:', formData);
+
+              // Send form data to the server using fetch API
+              fetch('/admininfo', {
+                  method: 'POST',
+                  body: formData
+              })
+              .then(response => {
+                  if (response.ok) {
+                      
+                     // window.location.href = "index.html";
+                  }
+                  else{
+                      // Optional: Redirect to login.html after successful signup (handled by app.js)
+                      throw new Error('Network response was not ok');
+                  }
+                  return response.text();
+              })
+              .then(response => response.json()) // Parse JSON response
+              .then(data => {
+                  console.log(data); // Log the response from the server
+                  // Optionally, you can redirect the user to another page upon successful signup
+                  //window.location.href = 'index.html';
+                  if (data.redirectTo) {
+                     // window.location.href = data.redirectTo; // Redirect based on server response
+                      }
+                      else {
+                          console.error('Error:', data.message || 'Unknown error');
+                      }
+              })
+              .catch(error => {
+                  console.error('There was a problem with the fetch operation:', error);
+              });
+              return false;
+  }
+      });
+  });
+   // Prevent default form submission  
+</script>
+  </div>
+
+</body>
+</html>

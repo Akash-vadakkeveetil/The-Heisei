@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin-Report</title>
+  <link rel="stylesheet" href="donor.css">
+  <style>
+    /* Universal style for all form controls */
+    input, select, textarea {
+      width: 90%; /* Adjust the width for uniformity */
+      padding: 4px;
+      text-align: center;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #ffffff; /* Light background for visibility */
+      color: #333; /* Dark text for readability */
+    }
+  
+    /* Style submit button */
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+    input[type="text"],
+    input[type="datetime-local"],
+    input[type="number"],
+    input[type="password"],
+    input[type="email"] {
+      border: 1px solid #cccccc; /* Same border for all */
+    }
+    /* Center the submit button */
+    .center-submit {
+      text-align: center;
+    }
+  input[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  width: 150px; /* Adjust width to make it shorter */
+  display: block;
+  margin: 10px auto; /* Centers the button horizontally */
+  padding: 8px 0;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  }
+  #unit:readonly {
+    background-color: #e0e0e0; /* Light gray background when disabled */
+  }
+  form {
+  width: 100%; /* Ensure the form takes full width */
+  /* margin: auto; */
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.form-container {
+  display: flex;
+  justify-content: flex-start; /* Aligns items closer */
+  flex-wrap: wrap;
+  gap: 120px; /* Reduces spacing between form groups */
+  margin-left: 20%;
+}
+
+.form-group {
+  width: 30%;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center; /* Ensures label and input align vertically */
+}
+
+label {
+  font-weight: bold;
+  width: 45.5%; /* Adjust to align with input */
+  margin-right: 10px; /* Space between label and input */
+  text-align: right; /* Align the label text to the right */
+}
+
+input {
+  font-size: 18px;
+  width: 70%; /* Adjust input width */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+        font-size: 18px;
+        color: #ffffff;
+        width: calc(10%);
+        background-color: navy;
+        padding: 8px;
+        margin-left: 45%;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        cursor: pointer; /* Add pointer cursor for better UX */
+    }
+button:disabled {
+    background-color: gray; /* Change background color */
+    color: lightgray; /* Change text color */
+    border: 1px solid #aaa; /* Change border color */
+    cursor: not-allowed; /* Change cursor to indicate it's disabled */
+    opacity: 0.6; /* Reduce opacity */
+    }
+    #formattedText {
+    display: flex;
+    flex-wrap: wrap; /* Allows wallets to move to the next line if space is insufficient */
+    gap: 10px; /* Adds spacing between blocks */
+  }
+  .wallet-block {
+    border: 2px solid navy;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    min-width: 200px;
+    flex: 1;
+    max-width: 250px;
+  }
+  .wallet-title {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: navy;
+  }
+  .commodities {
+    color: black;
+    padding-left: 20px; /* Indent commodities */
+  }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <h1>HEISEI</h1>
+    <div id="nav-part2">
+        <a href="adminhome.html"><h3>Home</h3></a>
+        <a href="adminreport.html" class="active"><h3>Reports</h3></a>
+         <a href="adminusers.html"><h3>Users</h3></a>
+         <a href="admincommodity.html"><h3>Commodity</h3></a>
+         <a href="admininfo.html"><h3>Info</h3></a>
+         <a href="login.html"><h3>LogOut</h3></a>
+         <h2>Admin</h2>
+      </div>
+    <script>
+      // Get the token from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      // Update all hyperlinks dynamically
+      document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && token) {
+              link.setAttribute('href', `${href}?token=${token}`);
+          }
+      });
+    </script>
+  </nav>
+
+  <div id="page1">
+
+    <h1 style="color:black; ">Blockchain Report</h1>
+      <form> 
+        <div class="form-container">
+            <div class="form-group">
+                <label for="startDateTime">Start Date:</label>
+                <input type="datetime-local" name="startDateTime" id="startDateTime">
+              </div>
+              
+              <div class="form-group">
+                <label for="endDateTime">End Date:</label>
+                <input type="datetime-local" name="endDateTime" id="endDateTime">
+              </div>
+            </div>   
+            <input type="hidden" name="token" id="token" value="<%= token %>">
+            <button id="downloadReportButton" type="button" onclick="downloadReport()">
+                Download
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 1v25"></path>
+                    <path d="M19 15l-7 7-7-7"></path>
+                    <path d="M3 24h17"></path>
+                </svg>
+            </button> 
+            <p id="plswait" style="color: rgb(0, 0, 0);font-size: 1.8ch;"></p> 
+      </form> 
+
+      <div style="height: 15px;width: 100%; background-color: #2d195eb0;color: #2d195eb0; margin: 20px 0;">-</div><br>
+
+      <h1 style="color:black; margin-bottom: -10px;">Blockchain Volunteer Stocks</h1>
+      <pre style="color: black; font-size: 2.5ch; font-weight: bold; text-decoration: underline;">Wallet Commodity Holdings</pre><br>
+        <div id="formattedText"></div>
+
+    <br>
+    <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    let rawText = `<%= pageText %>`; // The raw text from the server
+    let lines = rawText.split("\n"); // Split content into lines
+    if (lines.length > 0) {
+    lines[0] = "";
+    lines = lines.join("\n"); // Join back and update content
+    }
+    rawText=lines;
+
+    rawText = rawText.trim(); // Get raw text from server
+    let sections = rawText.split(/\n(?=Wallet: )/).map(s => s.trim()); // Split by wallets
+
+    let wallets = sections.map(section => {
+      let lines = section.split("\n").map(line => line.trim());
+      let walletName = lines[0]; // Wallet name (e.g., "Wallet: volunteer1")
+
+      // Extract commodities, ignoring the "Commodities:" line if present
+      let commoditiesIndex = lines.findIndex(line => line.startsWith("Commodities:"));
+      let commodities = (commoditiesIndex !== -1) ? lines.slice(commoditiesIndex + 1) : [];
+
+      // Ensure "No commodities listed" if none found
+      if (commodities.length === 0 || commodities.every(item => item.trim() === "")) {
+        commodities = ["No commodities in stock"];
+      }
+
+      return { walletName, commodities };
+    });
+
+    // Sort wallets alphabetically by name
+    wallets.sort((a, b) => a.walletName.localeCompare(b.walletName));
+
+    let formattedHTML = wallets.map(({ walletName, commodities }) => `
+      <div class="wallet-block">
+        <div class="wallet-title">${walletName}</div>
+        ${commodities.map(item => `<div class="commodities">${item}</div>`).join("")}
+      </div>
+    `).join("");
+
+    document.getElementById("formattedText").innerHTML = formattedHTML;
+  });
+      </script>
+
+    <script>
+        function formatDateTime(dateTimeStr) {
+            const date = new Date(dateTimeStr);
+            return date.toLocaleString('en-GB', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: true 
+            }).replace(',', ''); // Ensure correct spacing
+        }           
+        function downloadReport() {
+            document.getElementById('downloadReportButton').disabled = true;
+            document.getElementById('plswait').innerHTML = `Please Wait...
+                            <svg viewBox="0 0 50 50" width="2ch" height="2ch">
+                                <circle cx="25" cy="25" r="20" stroke="black" stroke-width="4" fill="none"
+                                    stroke-dasharray="125" stroke-dashoffset="0">
+                                    <animate attributeName="stroke-dashoffset" from="125" to="0" dur="1s" repeatCount="indefinite"/>
+                                </circle>
+                            </svg>`;
+            let startDateTime = document.getElementById('startDateTime').value;
+            let endDateTime = document.getElementById('endDateTime').value;
+            const token = document.getElementById('token').value;
+
+            if (!startDateTime || !endDateTime) {
+                alert("Please select both start and end dates.");
+                return;
+            }
+
+            startDateTime = formatDateTime(startDateTime);
+            endDateTime = formatDateTime(endDateTime);
+
+            // Send OTP request to backend
+            fetch('/download-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ startDateTime,endDateTime })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('plswait').textContent = '';
+                    alert('Blockchain Report downloading...\nCheck your Downloads.');
+                    document.getElementById('downloadReportButton').disabled = false;
+                } else {
+                    document.getElementById('plswait').textContent = '';
+                    alert(data.message);
+                    document.getElementById('downloadReportButton').disabled = false;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+
+  </div>
+
+</body>
+</html>

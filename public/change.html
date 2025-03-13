@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Change Password</title>
+<link rel="stylesheet" href="style.css"> <!-- Linking external CSS file -->
+</head>
+<body>
+    <div class="area">
+        <ul class="circles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <h1>HEISEI</h1>
+            <h3> </h3>
+            <h2> </h2>
+        
+            <h3></h3>
+            <center>
+                <div class="signup-container" style="margin-top: -215px;">
+                    <h2>Change Password</h2>
+                    <form id="change-form" action="/forgotform" method="POST" onsubmit="return preventDefaultSubmit()">
+                        <input type="email" name="email" id="email" placeholder="Enter Linked Email" required>
+                        <p id="cooldown" style="color: red;font-size: 1.5ch;"></p> <!-- Cooldown display -->
+                        <button type="button" id="otpButton" onclick="sendOTP()">Send OTP</button>
+                        <p id="plswait" style="color: rgb(0, 0, 0);font-size: 1.8ch;"></p>
+                        <input type="number" name="OTP" id="OTP" placeholder="Enter OTP" required>
+                        <input type="password" name="password" id="password" placeholder="Set New Password" required>
+                        <input type="submit" value="Save Password">
+                        
+                    </form>
+                    <p>Keep Old Password? <a href="login.html">Login Here</a></p>
+
+                    <script>
+                        let otpCode = null;
+                        let otpTimeout = null;
+                
+                        function sendOTP() {
+                            const email = document.getElementById('email').value.trim();
+                            if (!email) {
+                                alert('Please enter your email first.');
+                                return;
+                            }
+                
+                            // Disable button & start cooldown
+                            document.getElementById('otpButton').disabled = true;
+                            let timeLeft = 180; // 3 minutes
+                            document.getElementById('plswait').innerHTML = `Please Wait...
+                            <svg viewBox="0 0 50 50" width="2ch" height="2ch">
+                                <circle cx="25" cy="25" r="20" stroke="black" stroke-width="4" fill="none"
+                                    stroke-dasharray="125" stroke-dashoffset="0">
+                                    <animate attributeName="stroke-dashoffset" from="125" to="0" dur="1s" repeatCount="indefinite"/>
+                                </circle>
+                            </svg>`;
+                            updateCooldown(timeLeft);
+                            otpTimeout = setInterval(() => {
+                                timeLeft--;
+                                updateCooldown(timeLeft);
+                                if (timeLeft <= 0) {
+                                    clearInterval(otpTimeout);
+                                    document.getElementById('cooldown').textContent = '';
+                                    document.getElementById('otpButton').disabled = false;
+                                    otpCode = null;
+                                }
+                            }, 1000);
+                
+                            // Send OTP request to backend
+                            fetch('/send-username-otp', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ email })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    otpCode = data.otp; // Store OTP for frontend verification
+                                    alert('Username & OTP sent successfully. Check your email.');
+                                    document.getElementById('plswait').textContent = '';
+                                } else {
+                                    alert(data.message);
+                                    document.getElementById('plswait').textContent = '';
+                                    document.getElementById('otpButton').disabled = false;
+                                    document.getElementById('cooldown').textContent = '';
+                                    clearInterval(otpTimeout);
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                        }
+                
+                        function updateCooldown(time) {
+                            document.getElementById('cooldown').textContent = `Resend OTP in ${time}s`;
+                        }
+                    </script>
+
+                    <script>
+                        // Wait for the DOM content to be fully loaded
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Get the form element
+                            var form = document.getElementById('change-form');
+                
+                            // Add event listener for form submission
+                            form.addEventListener('submit', function(event) {
+                                const enteredOTP = document.getElementById('OTP').value.trim();
+                                if (enteredOTP != otpCode) {
+                                    alert('Incorrect OTP. Please try again.');
+                                    event.preventDefault();
+                                    return;
+                                }
+                                alert('OTP verified! Proceeding with Changing Password.');
+                               // event.preventDefault(); // Prevent the default form submission
+                            function preventDefaultSubmit() {
+                                event.preventDefault();    
+                                    // Collect form data
+                                    var formData = new FormData(form);
+                                    
+                                    // Log form data to console for debugging (optional)
+                                    console.log('Form Data:', formData);
+                    
+                                    // Send form data to the server using fetch API
+                                    fetch('/forgotform', {
+                                        method: 'POST',
+                                        body: formData
+                                    })
+                                    .then(response => {
+                                        if (response.ok) {
+                                            
+                                         // window.location.href = "index.html";
+                                         
+                                            
+                                        }
+                                        else{
+                                            // Optional: Redirect to login.html after successful signup (handled by app.js)
+                                            throw new Error('Network response was not ok');
+                                        }
+                                        return response.text();
+                                    })
+                                    .then(response => response.json()) // Parse JSON response
+                                    .then(data => {
+                                        console.log(data); // Log the response from the server
+                                        // Optionally, you can redirect the user to another page upon successful signup
+                                        //window.location.href = 'index.html';
+                                        if (data.redirectTo) {
+                                           // window.location.href = data.redirectTo; // Redirect based on server response
+                                            }
+                                            else {
+                                                console.error('Error:', data.message || 'Unknown error');
+                                            }
+                                    })
+                                    .catch(error => {
+                                        console.error('There was a problem with the fetch operation:', error);
+                                    });
+                                    return false;
+                        }
+                            });
+                        });
+                         // Prevent default form submission
+
+                            
+
+                           
+                    </script>
+                </div>
+            </center>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+
+ 
+</body>
+</html>

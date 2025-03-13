@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donor-History</title>
+  <link rel="stylesheet" href="donor.css">
+</head>
+<body>
+
+  <nav>
+    <h1>HEISEI</h1>
+    <div id="nav-part2">
+      <a href="donorhome.html"><h3>Home</h3></a>
+     <a href="donoravailablevol.html"><h3>Volunteers</h3></a>
+     <a href="donorhistory.html" class="active"><h3>Donated</h3></a>
+     <a href="login.html"><h3>LogOut</h3></a>
+      <h2><%= username %> </h2>
+    </div>
+    <script>
+      // Get the token from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      // Update all hyperlinks dynamically
+      document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && token) {
+              link.setAttribute('href', `${href}?token=${token}`);
+          }
+      });
+    </script>
+  </nav>
+
+
+  <div id="page1">
+<h1>Donated</h1>
+
+    <% if (donatedData && donatedData.length) { %>
+      <table style="font-size: 1.6em;">
+        <thead>
+          <tr style="color:black;">
+            <th style="background-color: #ddd; padding: 5px;">commodity</th>
+            <th style="background-color: #ddd; padding: 5px;">quantity</th>
+            <th style="background-color: #ddd; padding: 5px;">unit</th>
+            <th style="background-color: #ddd; padding: 5px;">date</th>
+            <th style="background-color: #ddd; padding: 5px;">volunteerid</th>
+            <th style="background-color: #ddd; padding: 5px;">volunteer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const item of donatedData.reverse()) { %>
+          <tr class="stock-row" style="color: white;">
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.commodity %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.quantity %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.unit %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;">
+              <%- new Date(item.date).toLocaleDateString('en-US', {
+                weekday: 'short',  // Display abbreviated weekday (e.g., Mon)
+                year: 'numeric',    // Display full year (e.g., 2024)
+                month: 'long',      // Display full month name (e.g., May)
+                day: 'numeric'     // Display numeric day (e.g., 9)
+            }) %> 
+            </td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.volunteerid %></td>
+            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.status %></td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% } else if (!donatedData && donatedData.length) { %>
+      <p>No data found.</p>
+    <% } %>
+
+    <br>
+    <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+
+
+  </div>
+
+</body>
+</html>

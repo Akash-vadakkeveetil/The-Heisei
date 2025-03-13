@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Page</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="area" >
+        <ul class="circles">
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <h1>HEISEI</h1>
+                <h3> </h3>
+                <h2> </h2>
+            
+                <h3>Revolutionizing Resource Supply</h3>
+                <center>
+                    <div class="login-container">
+                        <h2>Login</h2>
+                        <form action="/login" method="post">
+                            <input type="text" name="username" placeholder="Username" required>
+                            <input type="password" name="password" placeholder="Password" required>
+                            <p><a href="forgot.html" style="font-size: 1.5ch;">Forgot Username/Password ?</a></p>
+                            <input type="submit" value="Login">
+                        </form>
+                        <p>Don't have an account? <a href="signup.html">Register Here</a></p>
+                    </div>
+                    <div class="login-container" style="margin-top: 10px;">
+                        <p style="font-size: 1.6ch;">
+                            <a href="help.html" style="margin-right: 30px;">Help</a>
+                            <a href="change.html" style="margin-right: 30px;">Change Password</a>
+                            <a href="about.html">About</a>
+                        </p>
+                    </div>
+                </center>                
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+        </ul>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get the current URL and query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const alertMessage = urlParams.get('alert');
+
+            if (alertMessage) {
+            // Wait 1 second before showing the alert
+            setTimeout(() => {
+                alert(alertMessage);
+
+                // Remove the 'alert' parameter from the URL
+                const url = new URL(window.location);
+                url.searchParams.delete('alert');
+                window.history.replaceState({}, document.title, url.pathname + url.search);
+            }, 250);
+            }
+        });
+        </script>  
+        
+        
+</div >
+
+
+
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donor-details</title>
+  <link rel="stylesheet" href="donor.css">
+  <style>
+    form {
+      max-width: 500px;
+      margin: auto;
+      border: 2px solid navy;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+  }
+  .form-group {
+      margin-bottom: 10px;
+  }
+  label {
+      display: inline-block;
+      width: 1000px;
+      font-weight: bold;
+  }
+  input {
+      font-size: 18px;
+      width: calc(100% - 50px);
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+  }
+  input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    width: 100px; /* Adjust width to make it shorter */
+    display: block;
+    margin: 10px auto; /* Centers the button horizontally */
+    padding: 8px 0;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+  }
+  input[type="radio"] {
+      position: relative;
+      top: -20px;   /* Move up */
+      left: -100px;  /* Move left */
+    }
+    button {
+      font-size: 18px;
+      color: #ffffff;
+      width: calc(100% - 150px);
+      background-color: navy;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer; /* Add pointer cursor for better UX */
+    }
+</style>
+</head>
+<body>
+
+<nav>
+  <h1>HEISEI</h1>
+  <div id="nav-part2">
+     <a href="login.html"><h3>LogOut</h3></a>
+  </div>
+</nav>
+
+
+  <div id="page1">
+    <h1>Details</h1>
+    <!-- <centre>
+        <div class="signup-container">
+            <h2 style="color:black">Details</h2> -->
+            <form id="signup-form" action="/donorprof" method="POST" onsubmit="return preventDefaultSubmit()">
+                <input type="text" name="donorname" id="donorname" placeholder="name" required>
+                <br>
+                <input type="date" name="dob" id="dob" placeholder="dob" required>
+                <br>
+                <label>Choose Location Method:</label>
+                <br>
+                <label for="manual-location" style="color: black;">Manual</label>
+                <input type="radio" name="location-method" id="manual-location" value="manual" onchange="toggleLocationFields()">
+                <label for="gps-location" style="color: black;">GPS</label>
+                <input type="radio" name="location-method" id="gps-location" value="gps" onchange="toggleLocationFields()">
+                 <!-- Manual location fields -->
+                <div id="manual-location-fields" style="display: none;">
+                    <input type="text" name="location" id="location" placeholder="Location">
+                    <input type="number" name="pinno" id="pinno" placeholder="PIN No">
+                </div>
+                <!-- GPS location fields -->
+                <div id="gps-location-fields" style="display: none;">
+                    <button type="button" id="gps-location-btn" onclick="getLocation()">Get GPS Location</button>
+                    <span id="gps-status" style="display: none; color: green; font-size: 30px;">✔</span>
+                </div>
+                <input type="hidden" name="latitude" id="latitude">
+                <input type="hidden" name="longitude" id="longitude">
+                <br>
+                <input type="tel" name="contactnumber" id="contactnumber" placeholder="contact number" required>
+                <br>
+                <input type="hidden" name="token" id="token">
+                <input type="submit" value="Save">
+            </form>
+
+            <script>
+                // Function to handle form submission
+                function handleFormSubmit(event) {
+                    const locationMethod = document.querySelector('input[name="location-method"]:checked').value;
+                    const latitude = document.getElementById('latitude').value;
+                    const longitude = document.getElementById('longitude').value;
+            
+                    if (locationMethod === "gps" && (!latitude || !longitude)) {
+                        alert("Please allow location access.");
+                        event.preventDefault();
+                    }
+            
+                    // You can also add additional validation for manual fields if needed
+                }
+            
+                // Function to toggle between manual and GPS location fields
+                function toggleLocationFields() {
+                    const locationMethod = document.querySelector('input[name="location-method"]:checked').value;
+            
+                    if (locationMethod === "manual") {
+                        document.getElementById('manual-location-fields').style.display = 'block';
+                        document.getElementById('gps-location-fields').style.display = 'none';
+                    } else if (locationMethod === "gps") {
+                        document.getElementById('manual-location-fields').style.display = 'none';
+                        document.getElementById('gps-location-fields').style.display = 'block';
+                    }
+                }
+            
+                // Function to get the user's GPS location
+                function getLocation() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function(position) {
+                            const latitude = position.coords.latitude;
+                            const longitude = position.coords.longitude;
+            
+                            // Set the hidden fields with the GPS coordinates
+                            document.getElementById('latitude').value = latitude;
+                            document.getElementById('longitude').value = longitude;
+            
+                            alert("Location retrieved! Your GPS coordinates are set.");
+                            // Show the tick mark
+                            document.getElementById("gps-status").style.display = "inline";
+                        }, function(error) {
+                            alert("Error retrieving location: " + error.message);
+                        });
+                    } else {
+                        alert("Geolocation is not supported by this browser.");
+                    }
+                }
+            
+                // Initially, set the display based on the selected option
+                window.onload = function() {
+                    toggleLocationFields(); // Make sure the correct location fields are displayed on page load
+                };
+            </script>
+
+            <script>
+                // Function to extract query parameters from the URL
+                function getQueryParam(param) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    return urlParams.get(param);
+                }
+        
+                // Retrieve the token from the URL
+                const token = getQueryParam('token');
+        
+                // Set the token in the hidden input field
+                if (token) {
+                    document.getElementById('token').value = token;
+                } else {
+                    alert('Token is missing. Please log in again.');
+                    window.location.href = '/login.html'; // Redirect to login if token is missing
+                }
+            </script>
+            <script>
+                // Wait for the DOM content to be fully loaded
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Get the form element
+                    var form = document.getElementById('signup-form');
+        
+                    // Add event listener for form submission
+                    form.addEventListener('submit', function(event) {
+
+                        const dobInput = document.getElementById('dob').value;
+                        const dob = new Date(dobInput);
+                        const today = new Date();
+
+                        // Calculate the age
+                        const age = today.getFullYear() - dob.getFullYear();
+                        const monthDiff = today.getMonth() - dob.getMonth();
+                        const dayDiff = today.getDate() - dob.getDate();
+
+                        if (age < 15 || (age === 15 && (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)))) {
+                            alert("You must be at least 15 years old.");
+                            event.preventDefault(); // Prevent submission
+                            return; 
+                        }
+
+                       // event.preventDefault(); // Prevent the default form submission
+                    function preventDefaultSubmit() {
+                        event.preventDefault();    
+                            // Collect form data
+                            var formData = new FormData(form);
+                            
+                            // Log form data to console for debugging (optional)
+                            console.log('Form Data:', formData);
+            
+                            // Send form data to the server using fetch API
+                            fetch('/donorprof', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    
+                                   // window.location.href = "index.html";
+                                }
+                                else{
+                                    // Optional: Redirect to login.html after successful signup (handled by app.js)
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.text();
+                            })
+                            .then(response => response.json()) // Parse JSON response
+                            .then(data => {
+                                console.log(data); // Log the response from the server
+                                // Optionally, you can redirect the user to another page upon successful signup
+                                //window.location.href = 'index.html';
+                                if (data.redirectTo) {
+                                   // window.location.href = data.redirectTo; // Redirect based on server response
+                                    }
+                                    else {
+                                        console.error('Error:', data.message || 'Unknown error');
+                                    }
+                            })
+                            .catch(error => {
+                                console.error('There was a problem with the fetch operation:', error);
+                            });
+                            return false;
+                }
+                    });
+                });
+                 // Prevent default form submission
+
+                    
+
+                   
+            </script>
+        <!-- </div>
+    </centre> -->
+          
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer-Search</title>
+  <link rel="stylesheet" href="donor.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    /* General table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      color: white;
+    }
+  
+    /* Style table rows and cells */
+    .stock-row {
+      color: white;
+    }
+  
+    td {
+      padding: 8px;
+      text-align: center; /* Center-align all cells */
+      border: 1px solid #555; 
+      font-size: 16px;
+    }
+  
+    /* Universal style for all form controls */
+    input, select, textarea {
+      width: 90%; /* Adjust the width for uniformity */
+      padding: 4px;
+      text-align: center;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #ffffff; /* Light background for visibility */
+      color: #333; /* Dark text for readability */
+    }
+  
+    /* Style submit button */
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    input[type="email"] {
+      border: 1px solid #cccccc; /* Same border for all */
+    }
+    /* Center the submit button */
+    .center-submit {
+      text-align: center;
+    }
+    input[type="number"].invalid {
+    border: 2.5px solid red;
+    background-color: #facaca; /* Light red background */
+    }
+    .exceeds-message {
+    display: none;
+    color: red;
+    font-size: 12px;
+    text-align: center;
+    }
+    #suggestions {
+    border: 1px solid #ccc;
+    max-height: 165px;
+    overflow-y: auto;
+    position: absolute;
+    background: white;
+    z-index: 1000;
+    display: none;
+    width: 35%;
+    top: 55%;
+    }
+    .suggestion-item {
+      padding: 8px;
+      cursor: pointer;
+      color: black; /* Ensure the text is black */
+  }
+  .suggestion-item:hover {
+      background-color: #f0f0f0; /* Highlight on hover */
+  }
+  form {
+    max-width: 500px;
+    margin: auto;
+    border: 2px solid navy;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+  }
+  .form-group {
+    margin-bottom: 10px;
+  }
+  label {
+    display: inline-block;
+    width: 1000px;
+    font-weight: bold;
+  }
+  input {
+    font-size: 18px;
+    width: calc(100% - 50px);
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  input[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  width: 150px; /* Adjust width to make it shorter */
+  display: block;
+  margin: 10px auto; /* Centers the button horizontally */
+  padding: 8px 0;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  }
+  #unit:readonly {
+    background-color: #e0e0e0; /* Light gray background when disabled */
+  }
+  /* Preloader styles */
+  #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #2c195e; /* Dark background */
+      display: none; /* Hidden by default */
+      justify-content: center;
+      align-items: center;
+      z-index: 9999; /* Ensure it stays on top */
+    }
+
+    .loader {
+      border: 6px solid #f3f3f3; /* Light border */
+      border-top: 6px solid #4caf50; /* Spinner color */
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <h1>HEISEI</h1>
+    <div id="nav-part2">
+      <a href="volunteerhome.html"><h3>Home</h3></a>
+     <a href="volunteerlist.html"><h3>Supply</h3></a>
+     <a href="volunteerstock.html"><h3>Stock</h3></a>
+     <a href="volunteerrequest.html" class="volunteer-link"><h3>Requests</h3></a>
+     <a href="volunteerseeothers.html" class="active" class="volunteer-link"><h3>Search</h3></a>
+     <a href="volunteerhistory.html"><h3>History</h3></a>
+      <a href="login.html"><h3>LogOut</h3></a>
+      <h2><%= username %> </h2>
+    </div>
+    <script>
+      // Get the token from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      // Update all hyperlinks dynamically
+      document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && token) {
+              link.setAttribute('href', `${href}?token=${token}`);
+          }
+      });
+    </script>
+  </nav>
+
+
+  <div id="page1">
+
+    <div id="preloader">
+      <div class="loader"></div>
+      Loading time depends on your Network Connectivity.
+    </div>
+
+<!-- Popup Box -->
+<div id="popup" style="
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 15px 5px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  width: 500px;
+  height: 400px;
+">
+  <button id="close-popup" style="
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+  ">✖</button>
+  <div id="map" style="width: 100%; height: 100%;"></div>
+</div>
+
+<div id="tooltip" style="
+  position: absolute;
+  display: none;
+  background-color: rgb(242, 242, 242);
+  color: rgb(0, 0, 0);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  z-index: 1000;
+  pointer-events: none;">
+</div>
+
+    <h2 style="color:black; margin-bottom: 20px; ">Search</h2>
+    <form id="volunteer-search" action="/volunteersearch" method="POST" onsubmit="return preventDefaultSubmit()">
+        <label for="searchname">Username:</label>
+        <input type="text" name="searchname" id="searchname" value="" autocomplete="off" oninput="filterTable()">
+        <div id="suggestions"></div>
+        <input type="hidden" name="level" id="level" value="<%= level %>">
+    </form> 
+
+    <br><br>
+
+    <% if (volSearchData.length>1) { %>
+      <% if (level == 'collector') { %> 
+        <h2 style="color: black;">Based on Availability &darr;</h2>
+      <% } else if (level == 'gatherer') { %>
+        <h2 style="color: black;">Nearest to Farthest &darr;</h2>
+      <% } %>
+      <br>
+    <% } %>
+    <% if (volSearchData && volSearchData.length) { %>
+      <table id="volunteer-table" style="font-size: 1.6em;" border="1">
+        <thead>
+          <tr style="color:black;">
+            <th style="background-color: #ddd; padding: 5px;">username</th>
+            <% if (level == 'collector') { %> 
+                <th style="background-color: #ddd; padding: 5px;">name</th>
+            <% } else if (level == 'gatherer') { %>
+                <th style="background-color: #ddd; padding: 5px;">camp coordinator name</th>
+            <% } %>
+            <th style="background-color: #ddd; padding: 5px;">address</th>
+            <th style="background-color: #ddd; padding: 5px;">contact</th>
+          </tr>
+        </thead>
+        <tbody id="volunteer-tbody">
+          <% for (const item of volSearchData) { %>
+          <tr class="stock-row" style="color: white;">
+            <td class="username" style="background-color: #ddd; padding: 5px; color:black;"><%= item.username %></td>
+            <% if (level == 'collector') { %> 
+                <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.donorname %></td>
+            <% } else if (level == 'gatherer') { %>
+                <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.campcoordname %></td>
+            <% } %>
+            <td style="background-color: #ddd; padding: 5px; color: blue; cursor: pointer; position: relative;" 
+            onmouseover="showTooltip(event, 'Click to view map')" 
+            onmouseout="hideTooltip()" onclick="fetchLocation('<%= item.username %>')"><%= item.location %>, <%= item.pinno %></td>
+            <% if (level == 'collector') { %> 
+              <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.contactnumber %></td>
+          <% } else if (level == 'gatherer') { %>
+              <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.contact %></td>
+          <% } %>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% } else if (!volSearchData && volSearchData.length) { %>
+      <p style="color: black;">No data found.</p>
+    <% } %>
+
+    <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+
+    <script>
+      document.querySelectorAll('.volunteer-link').forEach(link => {
+        link.addEventListener('click', function (event) {
+          document.getElementById('preloader').style.display = 'flex';
+        });
+      });
+    </script>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      let map; // Global map variable
+      async function fetchLocation(username) {
+      try {
+        // Send username to Node.js backend
+        const response = await fetch(`/get-location?username=${username}`);
+        const data = await response.json();
+
+        if (data.latitude && data.longitude) {
+          isPopupOpen = true;
+          // Open the popup
+          const popup = document.getElementById('popup');
+          popup.style.display = 'block';
+
+          // Remove existing map if already initialized
+          if (map) {
+              map.remove(); // Properly remove the previous instance
+          }
+          // Initialize the map
+          map = L.map('map').setView([data.latitude, data.longitude], 14);
+
+          // Add OpenStreetMap (OSM) tile layer
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '© OpenStreetMap contributors'
+          }).addTo(map);
+
+          // Add a marker
+          L.marker([data.latitude, data.longitude]).addTo(map)
+              .bindPopup(`<b>${username}</b><br>(${data.latitude}, ${data.longitude})`)
+              .openPopup();
+        } else {
+          alert('Failed to fetch location.');
+        }
+      } catch (error) {
+        console.error('Error fetching location:', error);
+        alert('An error occurred.');
+      }
+    }
+
+    // Close popup functionality
+    document.getElementById('close-popup').addEventListener('click', () => {
+      document.getElementById('popup').style.display = 'none';
+      isPopupOpen = false; 
+    });
+
+    function showTooltip(event, message) {
+      const tooltip = document.getElementById('tooltip');
+      tooltip.style.display = 'block';
+      tooltip.textContent = message;
+      tooltip.style.left = `${event.pageX + 10}px`; // Position slightly to the right of the cursor
+      tooltip.style.top = `${event.pageY + 10}px`;  // Position slightly below the cursor
+    }
+
+    function hideTooltip() {
+      const tooltip = document.getElementById('tooltip');
+      tooltip.style.display = 'none';
+    }
+
+    </script>
+
+  <script>
+    function filterTable() {
+        const input = document.getElementById("searchname").value.toLowerCase();
+        const rows = document.querySelectorAll("#volunteer-tbody tr");
+
+        rows.forEach(row => {
+            const username = row.querySelector(".username").textContent.toLowerCase();
+            row.style.display = username.includes(input) ? "" : "none";
+        });
+    }
+  </script>
+
+    <script>
+      const searchInput = document.getElementById('searchname');
+      const suggestionsBox = document.getElementById('suggestions');
+      const levelInput = document.getElementById('level');
+      // Adjust position dynamically when page is scrolled
+      const rect = searchInput.getBoundingClientRect();
+      suggestionsBox.style.left = `${rect.left}px`; // Align it with input field
+      suggestionsBox.style.top = `${rect.bottom + window.scrollY}px`; // Position it below input
+
+      
+      let typingTimeout;
+
+      searchInput.addEventListener('input', () => {
+          const query = searchInput.value.trim();
+          const querylevel = levelInput.value.trim();
+          if (query.length === 0) {
+              suggestionsBox.style.display = 'none';
+              return;
+          }
+
+          // Clear any existing timeout (to prevent multiple API calls while typing)
+          clearTimeout(typingTimeout);
+
+          // Delay the fetch to only call it after the user stops typing (debounce effect)
+          typingTimeout = setTimeout(() => {
+              // Fetch suggestions and check for unit
+              fetch(`/search-name?term=${query}&level=${querylevel}`)
+                  .then(response => response.json())
+                  .then(data => {
+                      suggestionsBox.innerHTML = '';
+                      if (data.length > 0) {
+                          suggestionsBox.style.display = 'block';
+                          data.forEach(item => {
+                              const div = document.createElement('div');
+                              div.className = 'suggestion-item';
+                              div.textContent = item;
+                              div.addEventListener('click', () => {
+                                  searchInput.value = item; // Set the clicked item
+                                  suggestionsBox.style.display = 'none'; // Hide suggestions
+                              });
+                              suggestionsBox.appendChild(div);
+                          });
+                      } else {
+                          suggestionsBox.style.display = 'none';
+                      }
+                  })
+                  .catch(err => console.error('Error fetching suggestions:', err));
+
+          }, 500); // Delay after the user stops typing (500ms)
+      });
+
+      document.addEventListener('click', (e) => {
+          if (!suggestionsBox.contains(e.target) && e.target !== searchInput) {
+              suggestionsBox.style.display = 'none'; // Hide suggestions when clicking outside
+          }
+      });
+  </script>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin-Home</title>
+  <link rel="stylesheet" href="donor.css">
+  <style>
+    /* Style table rows and cells */
+    .stock-row {
+      color: white;
+    }
+  
+  
+    /* Universal style for all form controls */
+    input, select, textarea {
+      width: 90%; /* Adjust the width for uniformity */
+      padding: 4px;
+      text-align: center;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #ffffff; /* Light background for visibility */
+      color: #333; /* Dark text for readability */
+    }
+  
+    /* Style submit button */
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    input[type="email"] {
+      border: 1px solid #000000; /* Same border for all */
+    }
+    /* Center the submit button */
+    .center-submit {
+      text-align: center;
+    }
+  input[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  width: 150px; /* Adjust width to make it shorter */
+  display: block;
+  margin: 10px auto; /* Centers the button horizontally */
+  padding: 8px 0;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  }
+  #unit:readonly {
+    background-color: #e0e0e0; /* Light gray background when disabled */
+  }
+  form {
+  width: 100%; /* Ensure the form takes full width */
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.form-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  width: 45%;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center; /* Ensures label and input align vertically */
+}
+
+label {
+  font-weight: bold;
+  width: 45.5%; /* Adjust to align with input */
+  margin-right: 10px; /* Space between label and input */
+  text-align: right; /* Align the label text to the right */
+}
+
+input {
+  font-size: 18px;
+  width: 65%; /* Adjust input width */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.info-btn {
+  margin-left: 90px; /* Add space between input and button */
+  margin-right: -80px;
+  padding: 8px 12px; /* Adjust button padding */
+  font-size: 16px; 
+  font-weight: bold;
+  background-color: #ffffff; 
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.info-btn:hover {
+  background-color: #0056b3;
+}
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    width: 90%;
+    max-height: 80%;
+    overflow-y: auto;
+    margin: auto;
+    padding: 10px;
+    border-radius: 10px;
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.close-btn {
+    color: black;
+    float: right;
+    font-weight: bold;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+#modalTable th, #modalTable td {
+    border: 1px solid black; /* Black border */
+    padding: 8px;
+    text-align: center;
+}
+th, td {
+    color: black;
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+  </style>
+</head>
+<body>
+
+<nav>
+  <h1>HEISEI</h1>
+ 
+  <div id="nav-part2">
+    <a href="adminhome.html" class="active"><h3>Home</h3></a>
+    <a href="adminreport.html"><h3>Reports</h3></a>
+     <a href="adminusers.html"><h3>Users</h3></a>
+     <a href="admincommodity.html"><h3>Commodity</h3></a>
+     <a href="admininfo.html"><h3>Info</h3></a>
+     <a href="login.html"><h3>LogOut</h3></a>
+     <h2>Admin</h2>
+  </div>
+  <script>
+    // Get the token from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    // Update all hyperlinks dynamically
+    document.querySelectorAll('a').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && token) {
+            link.setAttribute('href', `${href}?token=${token}`);
+        }
+    });
+  </script>
+</nav>
+
+
+  <div id="page1">
+
+    <!-- Popup Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Details</h2>
+            <table id="modalTable">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <h2 style="color:black; margin-bottom: 20px; ">Camps & Volunteers</h2>
+      <form> 
+
+            <div class="form-group">
+                <label for="totalCamps">Total Camps</label>
+                <input type="number" name="totalCamps" id="totalCamps" value="<%= totalCamps %>" disabled>
+                <button class="info-btn" onclick="fetchDetails('camps', event)" title="see details">ℹ️</button>
+            </div> 
+
+        <div class="form-container">
+            <div class="form-group">
+                <label for="totalColVol">Total Collector Volunteers</label>
+                <input type="number" name="totalColVol" id="totalColVol" value="<%= totalColVol %>" disabled>
+                <button class="info-btn" onclick="fetchDetails('collectors', event)" title="see details">ℹ️</button>
+            </div>
+
+            <div class="form-group">
+                <label for="activeColVol">Active Collector Volunteers</label>
+                <input type="number" name="activeColVol" id="activeColVol" value="<%= activeColVol %>" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="totalGatVol">Total Gatherer Volunteers</label>
+                <input type="number" name="totalGatVol" id="totalGatVol" value="<%= totalGatVol %>" disabled>
+                <button class="info-btn" onclick="fetchDetails('gatherers', event)" title="see details">ℹ️</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="activeGatVol">Active Gatherer Volunteers</label>
+                <input type="number" name="activeGatVol" id="activeGatVol" value="<%= activeGatVol %>" disabled>
+            </div>
+        </div>          
+      </form> 
+
+    <br>
+        <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+         
+    
+    <script>
+        function fetchDetails(type, event) {
+    event.stopPropagation(); // Stops event from bubbling
+    event.preventDefault(); // Prevents form submission (IMPORTANT)
+
+    fetch(`/getDetails?type=` + type)
+        .then(response => response.json())
+        .then(data => {
+            let modalTitle = document.getElementById("modalTitle");
+            let modalTableHead = document.querySelector("#modalTable thead");
+            let modalTableBody = document.querySelector("#modalTable tbody");
+
+            modalTitle.innerText = `Details of ${type}`;
+            modalTableHead.innerHTML = "";
+            modalTableBody.innerHTML = "";
+
+            if (type === "camps") {
+                modalTableHead.innerHTML = `
+                    <tr>
+                        <th>Username</th>
+                        <th>Coordinator Name</th>
+                        <th>Address</th>
+                        <th>Contact</th>
+                    </tr>
+                `;
+                data.forEach(item => {
+                    modalTableBody.innerHTML += `
+                        <tr>
+                            <td>${item.username}</td>
+                            <td>${item.campcoordname}</td>
+                            <td>${item.location}, ${item.pinno}</td>
+                            <td>${item.contact}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                modalTableHead.innerHTML = `
+                    <tr>
+                        <th>Username</th>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>DOB</th>
+                        <th>Address</th>
+                        <th>Level</th>
+                        <th>Active</th>
+                    </tr>
+                `;
+                data.forEach(item => {
+                    let bgColor = item.active.toLowerCase() === "no" ? 'style="background-color: #d3d3d3;"' : '';
+                    modalTableBody.innerHTML += `
+                        <tr ${bgColor}>
+                            <td>${item.username}</td>
+                            <td>${item.volname}</td>
+                            <td>${item.contact}</td>
+                            <td>${new Date(item.dob).toLocaleDateString('en-CA')}</td>
+                            <td>${item.address}, ${item.pinno}</td>
+                            <td>${item.level}</td>
+                            <td>${item.active}</td>
+                        </tr>
+                    `;
+                        });
+                    }
+
+                    document.getElementById("detailsModal").style.display = "block";
+                });
+        }
+        function closeModal() {
+            document.getElementById("detailsModal").style.display = "none";
+        }
+        </script>
+
+</div>
+</body>
+</html>

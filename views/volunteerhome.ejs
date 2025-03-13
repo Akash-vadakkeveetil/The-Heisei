@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer-details</title>
+  <link rel="stylesheet" href="donor.css">
+  <style>
+    form {
+      max-width: 500px;
+      margin: auto;
+      border: 2px solid navy;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+  }
+  .form-group {
+      margin-bottom: 10px;
+  }
+  label {
+      display: inline-block;
+      width: 1000px;
+      font-weight: bold;
+  }
+  input {
+      font-size: 18px;
+      width: calc(100% - 50px);
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+  }
+  input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    width: 100px; /* Adjust width to make it shorter */
+    display: block;
+    margin: 10px auto; /* Centers the button horizontally */
+    padding: 8px 0;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+  }
+  input[type="radio"] {
+    position: relative;
+    top: -20px;   /* Move up */
+    left: -100px;  /* Move left */
+  }
+  button {
+    font-size: 18px;
+    color: #ffffff;
+    width: calc(100% - 150px);
+    background-color: navy;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer; /* Add pointer cursor for better UX */
+  }
+  /* Preloader styles */
+  #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #2c195e; /* Dark background */
+      display: none; /* Hidden by default */
+      justify-content: center;
+      align-items: center;
+      z-index: 9999; /* Ensure it stays on top */
+    }
+
+    .loader {
+      border: 6px solid #f3f3f3; /* Light border */
+      border-top: 6px solid #4caf50; /* Spinner color */
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+</style>
+</head>
+<body>
+
+<nav>
+  <h1>HEISEI</h1>
+ 
+  <div id="nav-part2">
+     <a href="volunteerhome.html" class="active"><h3>Home</h3></a>
+     <a href="volunteerlist.html"><h3>Supply</h3></a>
+     <a href="volunteerstock.html"><h3>Stock</h3></a>
+     <a href="volunteerrequest.html" class="volunteer-link"><h3>Requests</h3></a>
+     <a href="volunteerseeothers.html" class="volunteer-link"><h3>Search</h3></a>
+     <a href="volunteerhistory.html"><h3>History</h3></a>
+     <a href="login.html"><h3>LogOut</h3></a>
+     <% if (volunteerDetails) { %>
+     <h2><%= volunteerDetails.username %> </h2>
+     <% } %>
+     <script>
+      // Get the token from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      // Update all hyperlinks dynamically
+      document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && token) {
+              link.setAttribute('href', `${href}?token=${token}`);
+          }
+      });
+    </script>
+  </div>
+</nav>
+
+  <div id="page1">
+
+    <div id="preloader">
+      <div class="loader"></div>
+      Loading time depends on your Network Connectivity.
+    </div>
+
+    <h1>Details</h1>
+  
+    <% if (volunteerDetails) { %>
+      <form id="volunteer-home" action="/volunteerhomeupdate" method="POST" onsubmit="return preventDefaultSubmit()">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" value="<%= volunteerDetails.username %>" disabled>
+        <br>
+        <label for="volname">Name:</label>
+        <input type="text" name="volname" id="volname" value="<%= volunteerDetails.volname %>">
+        <br>
+        <label for="dob">Date of Birth:</label>
+        <input type="date" name="dob" id="dob" value="<%= new Date(volunteerDetails.dob).toLocaleDateString('en-CA') %>">
+        <br>
+        <label>Choose Location Update Method:</label>
+        <br>
+        <label for="manual-location" style="color: black;">Manual</label>
+        <input type="radio" name="location-method" id="manual-location" value="manual" onchange="toggleLocationFields()">
+        <label for="gps-location" style="color: black;">GPS</label>
+        <input type="radio" name="location-method" id="gps-location" value="gps" onchange="toggleLocationFields()">
+        <label for="none-location" style="color: black;">None</label>
+        <input type="radio" name="location-method" id="none-location" value="none" checked onchange="toggleLocationFields()">
+          <!-- Manual location fields -->
+        <div id="manual-location-fields" style="display: inline;">
+          <label for="address">Address:</label>
+          <input type="text" name="address" id="address" value="<%= volunteerDetails.address %>" disabled>
+          <label for="pinno"><br>PIN No:</label>
+          <input type="number" name="pinno" id="pinno" value="<%= volunteerDetails.pinno %>" disabled>
+        </div>
+        <br>
+        <!-- GPS location fields -->
+        <div id="gps-location-fields" style="display: none;">
+            <button type="button" id="gps-location-btn" onclick="getLocation()">Get GPS Location</button>
+            <span id="gps-status" style="display: none; color: green; font-size: 30px;">✔</span>
+        </div>
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
+        <br>
+        <label for="level">Servicing Level:</label>
+        <input type="text" name="level" id="level" value="<%= volunteerDetails.level %>" readonly>
+        <br>
+        <label for="contact">Contact Number:</label>
+        <input type="tel" name="contact" id="contact" value="<%= volunteerDetails.contact %>">
+        <br>
+        <% if (volunteerDetails.active == 'yes') { %>
+          <label for="yes-active" style="color: black;">Active</label>
+          <input type="radio" name="active" id="yes-active" value="yes" checked>
+          <label for="not-active" style="color: black;">Not active</label>
+          <input type="radio" name="active" id="not-active" value="no">
+        <% } else { %>
+          <label for="yes-active" style="color: black;">Active</label>
+          <input type="radio" name="active" id="yes-active" value="yes">
+          <label for="not-active" style="color: black;">Not active</label>
+          <input type="radio" name="active" id="not-active" value="no" checked>
+        <% } %>
+        <br>
+        <input type="hidden" name="token" id="token" value="<%= token %>">
+        <input type="submit" value="Save">
+      </form>
+      <% } else { %>
+      <p>Volunteer details not found.</p>
+    <% } %>
+
+    <br>
+        <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+          
+</div>
+
+<script>
+  // Show loader on form submission
+  document.getElementById('volunteer-home').addEventListener('submit', function () {
+    document.getElementById('preloader').style.display = 'flex';
+  });
+</script>
+<script>
+  document.querySelectorAll('.volunteer-link').forEach(link => {
+    link.addEventListener('click', function (event) {
+      document.getElementById('preloader').style.display = 'flex';
+    });
+  });
+</script>
+
+<script>
+  // Function to handle form submission
+  function handleFormSubmit(event) {
+      const locationMethod = document.querySelector('input[name="location-method"]:checked').value;
+      const latitude = document.getElementById('latitude').value;
+      const longitude = document.getElementById('longitude').value;
+
+      if (locationMethod === "gps" && (!latitude || !longitude)) {
+          alert("Please allow location access.");
+          event.preventDefault();
+      }
+
+      // You can also add additional validation for manual fields if needed
+  }
+
+  // Function to toggle between manual and GPS location fields
+  function toggleLocationFields() {
+      const locationMethod = document.querySelector('input[name="location-method"]:checked').value;
+
+      if (locationMethod === "manual") {
+          document.getElementById('manual-location-fields').style.display = 'block';
+          document.getElementById('gps-location-fields').style.display = 'none';
+          const manualFields = document.querySelectorAll('#manual-location-fields input'); 
+          manualFields.forEach(field => {
+            field.disabled = false; // Enable each field
+          });
+      } else if (locationMethod === "gps") {
+          document.getElementById('manual-location-fields').style.display = 'block';
+          document.getElementById('gps-location-fields').style.display = 'block';
+          const manualFields = document.querySelectorAll('#manual-location-fields input'); 
+          manualFields.forEach(field => {
+            field.disabled = true; // Enable each field
+          });
+      }else{
+        document.getElementById('manual-location-fields').style.display = 'block';
+          document.getElementById('gps-location-fields').style.display = 'none';
+          const manualFields = document.querySelectorAll('#manual-location-fields input'); 
+          manualFields.forEach(field => {
+            field.disabled = true; // Enable each field
+          });
+      }
+  }
+
+  // Function to get the user's GPS location
+  function getLocation() {
+      if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+              const latitude = position.coords.latitude;
+              const longitude = position.coords.longitude;
+
+              // Set the hidden fields with the GPS coordinates
+              document.getElementById('latitude').value = latitude;
+              document.getElementById('longitude').value = longitude;
+
+              alert("Location retrieved! Your GPS coordinates are set.");
+              // Show the tick mark
+              document.getElementById("gps-status").style.display = "inline";
+          }, function(error) {
+              alert("Error retrieving location: " + error.message);
+          });
+      } else {
+          alert("Geolocation is not supported by this browser.");
+      }
+  }
+
+  // Initially, set the display based on the selected option
+  window.onload = function() {
+      toggleLocationFields(); // Make sure the correct location fields are displayed on page load
+  };
+</script>
+<script>
+  // Wait for the DOM content to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+      // Get the form element
+      var form = document.getElementById('volunteer-home');
+
+      // Add event listener for form submission
+      form.addEventListener('submit', function(event) {
+
+        const dobInput = document.getElementById('dob').value;
+        const dob = new Date(dobInput);
+        const today = new Date();
+
+        // Calculate the age
+        const age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        const dayDiff = today.getDate() - dob.getDate();
+
+        if (age < 18 || (age === 18 && (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)))) {
+            alert("You must be at least 18 years old.");
+            event.preventDefault(); // Prevent submission
+            return; 
+        }
+
+        const okCancel = confirm("Do you want to proceed?");
+        if (!okCancel) {
+          event.preventDefault(); // Prevent submission
+          return; 
+        }
+         // event.preventDefault(); // Prevent the default form submission
+      function preventDefaultSubmit() {
+          event.preventDefault();    
+              // Collect form data
+              var formData = new FormData(form);
+              
+              // Log form data to console for debugging (optional)
+              console.log('Form Data:', formData);
+
+              // Send form data to the server using fetch API
+              fetch('/volunteerhomeupdate', {
+                  method: 'POST',
+                  body: formData
+              })
+              .then(response => {
+                  if (response.ok) {
+                      
+                     // window.location.href = "index.html";
+                  }
+                  else{
+                      // Optional: Redirect to login.html after successful signup (handled by app.js)
+                      throw new Error('Network response was not ok');
+                  }
+                  return response.text();
+              })
+              .then(response => response.json()) // Parse JSON response
+              .then(data => {
+                  console.log(data); // Log the response from the server
+                  // Optionally, you can redirect the user to another page upon successful signup
+                  //window.location.href = 'index.html';
+                  if (data.redirectTo) {
+                     // window.location.href = data.redirectTo; // Redirect based on server response
+                      }
+                      else {
+                          console.error('Error:', data.message || 'Unknown error');
+                      }
+              })
+              .catch(error => {
+                  console.error('There was a problem with the fetch operation:', error);
+              });
+              return false;
+  }
+      });
+  });
+   // Prevent default form submission   
+</script>
+</body>
+</html>

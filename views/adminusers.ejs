@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin-Users</title>
+  <link rel="stylesheet" href="donor.css">
+  <style>
+    /* Universal style for all form controls */
+    input, select, textarea {
+      width: 90%; /* Adjust the width for uniformity */
+      padding: 4px;
+      text-align: center;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #ffffff; /* Light background for visibility */
+      color: #333; /* Dark text for readability */
+    }
+  
+    /* Style submit button */
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    input[type="email"]
+    input[type="file"] {
+      border: 1px solid #cccccc; /* Same border for all */
+    }
+    /* Center the submit button */
+    .center-submit {
+      text-align: center;
+    }
+  input[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  width: 150px; /* Adjust width to make it shorter */
+  display: block;
+  margin: 10px auto; /* Centers the button horizontally */
+  padding: 8px 0;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  }
+  #unit:readonly {
+    background-color: #e0e0e0; /* Light gray background when disabled */
+  }
+  form {
+  width: 100%; /* Ensure the form takes full width */
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.form-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  width: 30%; /* Adjust for three columns */
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+label {
+  font-weight: bold;
+  width: 40%; /* Adjust width to align properly */
+  margin-right: 5px; /* Reduce space between label and input */
+  text-align: right;
+}
+
+input, select {
+  font-size: 16px;
+  width: 60%; /* Adjust width */
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+button[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  width: 150px; /* Adjust width to make it shorter */
+  display: block;
+  margin: 10px auto; /* Centers the button horizontally */
+  padding: 8px 0;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  }
+  #suggestions {
+    border: 1px solid #ccc;
+    max-height: 165px;
+    overflow-y: auto;
+    position: absolute;
+    background: white;
+    z-index: 1000;
+    display: none;
+    width: 35%;
+    top: 55%;
+    }
+    .suggestion-item {
+      padding: 8px;
+      cursor: pointer;
+      color: black; /* Ensure the text is black */
+  }
+  .suggestion-item:hover {
+      background-color: #f0f0f0; /* Highlight on hover */
+  }
+  .editusers {
+    max-width: 500px;
+    margin: auto;
+    border: 2px solid navy;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+.editusers .form-group {
+    margin-bottom: 10px;
+}
+.editusers label {
+    display:inline-flex;
+    width: 500px;
+    padding-left: 0px;
+    font-weight: bold;
+    color: black;
+}
+.editusers input {
+    font-size: 18px;
+    width: calc(100% - 50px);
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.editusers input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    width: 100px;
+    display: block;
+    margin: 10px auto;
+    padding: 8px 0;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+}
+.editusers input[type="radio"] {
+    position: relative;
+    top: -20px;
+    left: -100px;
+}
+  </style>
+</head>
+<body>
+
+<nav>
+  <h1>HEISEI</h1>
+ 
+  <div id="nav-part2">
+    <a href="adminhome.html"><h3>Home</h3></a>
+    <a href="adminreport.html"><h3>Reports</h3></a>
+     <a href="adminusers.html" class="active"><h3>Users</h3></a>
+     <a href="admincommodity.html"><h3>Commodity</h3></a>
+     <a href="admininfo.html"><h3>Info</h3></a>
+     <a href="login.html"><h3>LogOut</h3></a>
+     <h2>Admin</h2>
+  </div>
+  <script>
+    // Get the token from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    // Update all hyperlinks dynamically
+    document.querySelectorAll('a').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && token) {
+            link.setAttribute('href', `${href}?token=${token}`);
+        }
+    });
+  </script>
+</nav>
+
+
+  <div id="page1">
+
+    <h2 style="color:black; margin-bottom: 20px;">New Volunteers & Camp Coordinators</h2>
+    <h3 style="color: black; margin-bottom: 20px; display: flex; align-items: center;">
+      <span style="font-size: 24px; margin-left: 0px;">+Add Manually</span>
+    </h3>
+      <form id="admin-add-users" action="/adminaddusers" method="POST" onsubmit="return preventDefaultSubmit()"> 
+        <div class="form-container">
+            <div class="form-group">
+                <label for="email">E-mail:</label>
+                <input type="email" name="email" id="email" placeholder="- enter -" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="category">Category:</label>
+                <select name="category" id="category" required>
+                  <option value="" disabled selected>Select Category</option>
+                  <option value="volunteer">Volunteer</option>
+                  <option value="campcoordinator">Camp-Coordinator</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="level">Level:</label>
+                <select name="level" id="level" required>
+                  <option value="" disabled selected>Select Level</option>
+                  <option value="collector">Collector</option>
+                  <option value="gatherer">Gatherer</option>
+                </select>
+              </div>            
+          
+            <input type="hidden" name="token" id="token" value="<%= token %>">
+            <input type="submit" value="Add">
+
+        </div> 
+        <span style="font-size: 24px;color: black; text-align: center;"><br>OR</span>         
+      </form>
+
+    <h3 style="color: black; margin-bottom: 0px; margin-top: 10px; display: flex; align-items: center;">
+      <span style="font-size: 24px; margin-left: 0px;">+Upload Sheet(.csv)</span>
+    </h3>
+
+    <form id="csvUploadForm" style="margin-top: 0px; align-items: center;">
+      <input style="width: 400px;" type="file" id="csvFile" accept=".csv" required>
+      <button type="submit">Upload</button>
+    </form>
+
+    <h2 style="color:black; margin-bottom: 10px;background-color: rgb(253, 253, 185); ">Recently added...</h1>
+      <% if (recentData && recentData.length) { %>
+        <table style="font-size: 1.6em;">
+          <thead>
+            <tr style="color:black;">
+              <th style="background-color: #ddd; padding: 5px;">E-mail</th>
+              <th style="background-color: #ddd; padding: 5px;">Category</th>
+              <th style="background-color: #ddd; padding: 5px;">Level(for volunteer only)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% for (const item of recentData) { %>
+            <tr class="stock-row" style="color: white;">
+              <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.email %></td>
+              <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.category %></td>
+              <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.level %></td>
+            </tr>
+            <% } %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <h3 style="color: black;">None.</h3>
+      <% } %>
+      
+      <div style="height: 15px;width: 100%; background-color: #2d195eb0;color: #2d195eb0; margin: 20px 0;">-</div><br>
+        
+      <h2 style="color:black; margin-bottom: 20px;">Manage Donors, Volunteers & Camps</h2>
+      <div class="form-container" style="width: 30%;">
+        <label for="username">Search User:</label>
+        <% if (selectedUsername == "0") { %>
+        <input type="text" name="username" id="username" placeholder="- enter username -" required autocomplete="off">
+        <% } else { %>
+        <input type="text" name="username" id="username" value="<%= selectedUsername %>" required autocomplete="off">
+        <% } %>
+        <div id="suggestions"></div>
+      </div>  
+
+      <br><br>
+
+      <% if (typeof selectedUsername !== 'undefined' && selectedUsername) { %>
+      <form class="editusers" id="admin-edit-users" action="/admineditusers" method="POST" onsubmit="return preventDefaultSubmit()"> 
+        <!-- Hidden inputs to store selected values -->
+        <input type="hidden" id="selectedUsername" name="selectedUsername" value="<%= selectedUsername %>">
+        <input type="hidden" id="selectedCategory" name="selectedCategory" value="<%= selectedCategory %>">
+        <input type="hidden" name="token" id="token" value="<%= token %>">
+
+        <% for (const editDetails of adminEditData) { %>
+        <% if (editDetails.username == selectedUsername) { %>
+          <% if (selectedCategory == "volunteer") { %>
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" value="<%= editDetails.username %>" readonly>
+            
+            <label for="volname">Name:</label>
+            <input type="text" name="volname" id="volname" value="<%= editDetails.volname %>" disabled>
+            
+            <label for="dob">Date of Birth:</label>
+            <input type="date" name="dob" id="dob" value="<%= new Date(editDetails.dob).toLocaleDateString('en-CA') %>" disabled>
+            
+              <label for="address">Address:</label>
+              <input type="text" name="address" id="address" value="<%= editDetails.address %>" disabled>
+
+              <label for="pinno"><br>PIN No:</label>
+              <input type="number" name="pinno" id="pinno" value="<%= editDetails.pinno %>" disabled>
+            
+            <label for="contact">Contact Number:</label>
+            <input type="tel" name="contact" id="contact" value="<%= editDetails.contact %>" disabled>
+            
+            <% if (editDetails.level == "collector") { %>
+              <label for="collector" style="color: black;">Collector</label>
+              <input type="radio" name="level" id="collector" value="collector" checked>
+              <label for="gatherer" style="color: black;">Gatherer</label>
+              <input type="radio" name="level" id="gatherer" value="gatherer">
+            <% } else { %>
+              <label for="collector" style="color: black;">Collector</label>
+              <input type="radio" name="level" id="collector" value="collector">
+              <label for="gatherer" style="color: black;">Gatherer</label>
+              <input type="radio" name="level" id="gatherer" value="gatherer" checked>
+            <% } %>
+            
+            <% if (editDetails.active == 'yes') { %>
+              <label for="yes-active" style="color: black;">Active</label>
+              <input type="radio" name="active" id="yes-active" value="yes" checked>
+              <label for="not-active" style="color: black;">Not active</label>
+              <input type="radio" name="active" id="not-active" value="no">
+            <% } else { %>
+              <label for="yes-active" style="color: black;">Active</label>
+              <input type="radio" name="active" id="yes-active" value="yes">
+              <label for="not-active" style="color: black;">Not active</label>
+              <input type="radio" name="active" id="not-active" value="no" checked>
+            <% } %>
+            
+            <% if (editDetails.blocked === "yes") { %>
+              <label for="yes" style="color: black;">Block</label>
+              <input type="radio" name="blocked" id="yes" value="yes" checked>
+              <label for="no" style="color: black;">Unblock</label>
+              <input type="radio" name="blocked" id="no" value="no">
+              <% } else { %>
+              <label for="yes" style="color: black;">Block</label>
+              <input type="radio" name="blocked" id="yes" value="yes">
+              <label for="no" style="color: black;">Unblock</label>
+              <input type="radio" name="blocked" id="no" value="no" checked>
+              <% } %>
+            
+            <input type="submit" value="Save">
+          <% } else if (selectedCategory === "campcoordinator") { %>
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" value="<%= editDetails.username %>" readonly>
+           
+            <label for="campcoordname">Coordinator Name:</label>
+            <input type="text" name="campcoordname" id="campcoordname" value="<%= editDetails.campcoordname %>" disabled>
+           
+              <label for="location">Location:</label>
+              <input type="text" name="location" id="location" value="<%= editDetails.location %>" disabled>
+
+              <label for="pinno"><br>PIN No:</label>
+              <input type="number" name="pinno" id="pinno" value="<%= editDetails.pinno %>" disabled>
+            
+            <label for="contact">Coordinator Contact Number:</label>
+            <input type="tel" name="contact" id="contact" value="<%= editDetails.contact %>" disabled>
+            
+            <% if (editDetails.blocked === "yes") { %>
+              <label for="yes" style="color: black;">Block</label>
+              <input type="radio" name="blocked" id="yes" value="yes" checked>
+              <label for="no" style="color: black;">Unblock</label>
+              <input type="radio" name="blocked" id="no" value="no">
+              <% } else { %>
+              <label for="yes" style="color: black;">Block</label>
+              <input type="radio" name="blocked" id="yes" value="yes">
+              <label for="no" style="color: black;">Unblock</label>
+              <input type="radio" name="blocked" id="no" value="no" checked>
+              <% } %>
+            
+            <input type="submit" value="Save">
+          <% } else if (selectedCategory === "donor") { %>
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" value="<%= editDetails.username %>" readonly>
+           
+            <label for="donorname">Name:</label>
+            <input type="text" name="donorname" id="donorname" value="<%= editDetails.donorname %>" disabled>
+           
+            <label for="dob">Date of Birth:</label>
+            <input type="date" name="dob" id="dob" value="<%= new Date(editDetails.dob).toLocaleDateString('en-CA') %>" disabled>
+           
+            <label for="location">Location:</label>
+            <input type="text" name="location" id="location" value="<%= editDetails.location %>" disabled>
+
+            <label for="pinno"><br>PIN No:</label>
+            <input type="number" name="pinno" id="pinno" value="<%= editDetails.pinno %>" disabled>
+            
+            <label for="contactnumber">Contact Number:</label>
+            <input type="tel" name="contactnumber" id="contactnumber" value="<%= editDetails.contactnumber %>" disabled>
+           
+            <% if (editDetails.blocked === "yes") { %>
+            <label for="yes" style="color: black;">Block</label>
+            <input type="radio" name="blocked" id="yes" value="yes" checked>
+            <label for="no" style="color: black;">Unblock</label>
+            <input type="radio" name="blocked" id="no" value="no">
+            <% } else { %>
+            <label for="yes" style="color: black;">Block</label>
+            <input type="radio" name="blocked" id="yes" value="yes">
+            <label for="no" style="color: black;">Unblock</label>
+            <input type="radio" name="blocked" id="no" value="no" checked>
+            <% } %>
+          
+            <input type="submit" value="Save">
+          <% } %>
+        <% } %>
+        <% } %>
+      </form>
+      <% } %>
+
+
+    <br>
+    <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+
+    <script>
+      const searchInput = document.getElementById('username');
+      const suggestionsBox = document.getElementById('suggestions');
+      // Adjust position dynamically when page is scrolled
+      const rect = searchInput.getBoundingClientRect();
+      suggestionsBox.style.left = `${rect.left}px`; // Align it with input field
+      suggestionsBox.style.top = `${rect.bottom + window.scrollY}px`; // Position it below input
+      let typingTimeout;
+      searchInput.addEventListener('input', () => {
+          const query = searchInput.value.trim();
+          if (query.length === 0) {
+              suggestionsBox.style.display = 'none';
+              return;
+          }
+          // Clear any existing timeout (to prevent multiple API calls while typing)
+          clearTimeout(typingTimeout);
+          // Delay the fetch to only call it after the user stops typing (debounce effect)
+          typingTimeout = setTimeout(() => {
+              // Fetch suggestions and check for unit
+              fetch(`/adminsearch-username?term=${query}`)
+                  .then(response => response.json())
+                  .then(data => {
+                      suggestionsBox.innerHTML = '';
+                      if (data.length > 0) {
+                          suggestionsBox.style.display = 'block';
+                          data.forEach(item => {
+                              const div = document.createElement('div');
+                              div.className = 'suggestion-item';
+                              // Display both username and category
+                              div.innerHTML = `<strong>${item.username}</strong> <span style="color: gray;">(${item.category})</span>`;
+                              div.addEventListener('click', () => {
+                                  searchInput.value = item.username; // Set the clicked item
+                                  suggestionsBox.style.display = 'none'; // Hide suggestions
+
+                                  // Store in sessionStorage
+                                  // sessionStorage.setItem('selectedUsername', item.username);
+                                  // sessionStorage.setItem('selectedCategory', item.category);
+
+                                  // Reload the page
+                                  // location.reload();
+                                  window.location.href = `/admin-users-details?token=${token}&selectedUsername=${encodeURIComponent(item.username)}&selectedCategory=${encodeURIComponent(item.category)}`;
+                              });
+                              suggestionsBox.appendChild(div);
+                          });
+                      } else {
+                          suggestionsBox.style.display = 'none';
+                      }
+                  })
+                  .catch(err => console.error('Error fetching suggestions:', err));
+
+          }, 500); // Delay after the user stops typing (500ms)
+      });
+      document.addEventListener('click', (e) => {
+          if (!suggestionsBox.contains(e.target) && e.target !== searchInput) {
+              suggestionsBox.style.display = 'none'; // Hide suggestions when clicking outside
+          }
+      });
+  </script>
+
+    <script>
+      document.getElementById('csvUploadForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const fileInput = document.getElementById('csvFile');
+    if (!fileInput.files.length) {
+        alert("Please select a CSV file!");
+        return;
+    }
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = async function (e) {
+        const csvText = e.target.result;
+        const lines = csvText.split("\n").map(line => line.trim());
+        const headers = lines[0].split(",").map(header => header.trim());
+        const rows = lines.slice(1).map(line => line.split(",").map(value => value.trim()));
+
+        if (!headers.includes("email") || !headers.includes("category") || !headers.includes("level")) {
+            alert("CSV must have headers: email, category, level");
+            return;
+        }
+
+        const jsonData = rows.map(row => {
+            let rowData = headers.reduce((acc, header, index) => {
+                acc[header] = row[index] || "";
+                return acc;
+            }, {});
+
+            if (rowData.category === "campcoordinator") {
+                rowData.level = null; // Ensure level is NULL for campcoordinator
+            }
+            return rowData;
+        }).filter(row => row !== null);
+
+        try {
+            const response = await fetch('/uploadcsv', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: jsonData })
+            });
+            const result = await response.json();
+            alert(result.message);
+            
+            window.location.reload();
+        } catch (error) {
+            console.error("Upload failed:", error);
+            alert("Error uploading CSV");
+        }
+    };
+    reader.readAsText(file);
+    });
+  </script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          const categorySelect = document.getElementById("category");
+          const levelSelect = document.getElementById("level");
+      
+          categorySelect.addEventListener("change", function () {
+              if (categorySelect.value === "campcoordinator") {
+                  levelSelect.value = "0";
+                  levelSelect.setAttribute("disabled", true);
+              } else {
+                  levelSelect.value = "";
+                  levelSelect.removeAttribute("disabled");
+              }
+          });
+      });
+      </script>    
+
+<script>
+  // Wait for the DOM content to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+      // Get the form element
+      var form = document.getElementById('admin-add-users');
+
+      // Add event listener for form submission
+      form.addEventListener('submit', function(event) {
+        const okCancel = confirm("Do you want to proceed?");
+              if (!okCancel) {
+                event.preventDefault(); // Prevent submission
+                return; 
+              }
+         // event.preventDefault(); // Prevent the default form submission
+      function preventDefaultSubmit() {
+          event.preventDefault();    
+              // Collect form data
+              var formData = new FormData(form);
+              
+              // Log form data to console for debugging (optional)
+              console.log('Form Data:', formData);
+
+              // Send form data to the server using fetch API
+              fetch('/adminaddusers', {
+                  method: 'POST',
+                  body: formData
+              })
+              .then(response => {
+                  if (response.ok) {
+                      
+                     // window.location.href = "index.html";
+                  }
+                  else{
+                      // Optional: Redirect to login.html after successful signup (handled by app.js)
+                      throw new Error('Network response was not ok');
+                  }
+                  return response.text();
+              })
+              .then(response => response.json()) // Parse JSON response
+              .then(data => {
+                  console.log(data); // Log the response from the server
+                  // Optionally, you can redirect the user to another page upon successful signup
+                  //window.location.href = 'index.html';
+                  if (data.redirectTo) {
+                     // window.location.href = data.redirectTo; // Redirect based on server response
+                      }
+                      else {
+                          console.error('Error:', data.message || 'Unknown error');
+                      }
+              })
+              .catch(error => {
+                  console.error('There was a problem with the fetch operation:', error);
+              });
+              return false;
+  }
+      });
+  });
+   // Prevent default form submission  
+</script>
+
+<script>
+  // Wait for the DOM content to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+      // Get the form element
+      var form = document.getElementById('admin-edit-users');
+
+      // Add event listener for form submission
+      form.addEventListener('submit', function(event) {
+        const okCancel = confirm("Do you want to proceed?");
+              if (!okCancel) {
+                event.preventDefault(); // Prevent submission
+                return; 
+              }
+         // event.preventDefault(); // Prevent the default form submission
+      function preventDefaultSubmit() {
+          event.preventDefault();    
+              // Collect form data
+              var formData = new FormData(form);
+              
+              // Log form data to console for debugging (optional)
+              console.log('Form Data:', formData);
+
+              // Send form data to the server using fetch API
+              fetch('/admineditusers', {
+                  method: 'POST',
+                  body: formData
+              })
+              .then(response => {
+                  if (response.ok) {
+                      
+                     // window.location.href = "index.html";
+                  }
+                  else{
+                      // Optional: Redirect to login.html after successful signup (handled by app.js)
+                      throw new Error('Network response was not ok');
+                  }
+                  return response.text();
+              })
+              .then(response => response.json()) // Parse JSON response
+              .then(data => {
+                  console.log(data); // Log the response from the server
+                  // Optionally, you can redirect the user to another page upon successful signup
+                  //window.location.href = 'index.html';
+                  if (data.redirectTo) {
+                     // window.location.href = data.redirectTo; // Redirect based on server response
+                      }
+                      else {
+                          console.error('Error:', data.message || 'Unknown error');
+                      }
+              })
+              .catch(error => {
+                  console.error('There was a problem with the fetch operation:', error);
+              });
+              return false;
+  }
+      });
+  });
+   // Prevent default form submission  
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      const alertMessage = urlParams.get('alert');
+
+      if (alertMessage) {
+      // Wait 1 second before showing the alert
+      setTimeout(() => {
+          alert(alertMessage);
+
+          // Remove the 'alert' parameter from the URL
+          const url = new URL(window.location);
+          url.searchParams.delete('alert');
+          window.history.replaceState({}, document.title, url.pathname + url.search);
+      }, 250);
+      }
+
+  });
+  </script>  
+
+</div>
+</body>
+</html>

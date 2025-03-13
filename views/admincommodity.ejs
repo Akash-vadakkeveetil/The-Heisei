@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin-Commodity</title>
+  <link rel="stylesheet" href="donor.css">
+  <style>
+    /* General table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      color: white;
+    }
+  
+    /* Style table rows and cells */
+    .stock-row {
+      color: white;
+    }
+  
+    td {
+      padding: 8px;
+      text-align: center; /* Center-align all cells */
+      border: 1px solid #555; 
+      font-size: 16px;
+    }
+  
+    /* Universal style for all form controls */
+    input, select, textarea {
+      width: 90%; /* Adjust the width for uniformity */
+      padding: 4px;
+      text-align: center;
+      border: 1px solid #cccccc;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #ffffff; /* Light background for visibility */
+      color: #333; /* Dark text for readability */
+    }
+  
+    /* Style submit button */
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    input[type="email"] {
+      border: 1px solid #cccccc; /* Same border for all */
+    }
+    /* Center the submit button */
+    .center-submit {
+      text-align: center;
+    }
+    input[type="number"].invalid {
+    border: 2.5px solid red;
+    background-color: #facaca; /* Light red background */
+    }
+    #suggestions {
+    border: 1px solid #ccc;
+    max-height: 165px;
+    overflow-y: auto;
+    position: absolute;
+    background: white;
+    z-index: 1000;
+    display: none;
+    width: 35%;
+    top: 55%;
+    }
+    .suggestion-item {
+      padding: 8px;
+      cursor: pointer;
+      color: black; /* Ensure the text is black */
+  }
+  .suggestion-item:hover {
+      background-color: #f0f0f0; /* Highlight on hover */
+  }
+  form {
+    max-width: 500px;
+    margin: auto;
+    border: 2px solid navy;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+  }
+  .form-group {
+    margin-bottom: 10px;
+  }
+  label {
+    display: inline-block;
+    width: 1000px;
+    font-weight: bold;
+  }
+  input {
+    font-size: 18px;
+    width: calc(100% - 50px);
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  input[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  width: 150px; /* Adjust width to make it shorter */
+  display: block;
+  margin: 10px auto; /* Centers the button horizontally */
+  padding: 8px 0;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  }
+  #unit:readonly {
+    background-color: #e0e0e0; /* Light gray background when disabled */
+  }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <h1>HEISEI</h1>
+    <div id="nav-part2">
+      <a href="adminhome.html"><h3>Home</h3></a>
+      <a href="adminreport.html"><h3>Reports</h3></a>
+       <a href="adminusers.html"><h3>Users</h3></a>
+       <a href="admincommodity.html" class="active"><h3>Commodity</h3></a>
+       <a href="admininfo.html"><h3>Info</h3></a>
+       <a href="login.html"><h3>LogOut</h3></a>
+       <h2>Admin</h2>
+    </div>
+    <script>
+      // Get the token from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      // Update all hyperlinks dynamically
+      document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && token) {
+              link.setAttribute('href', `${href}?token=${token}`);
+          }
+      });
+    </script>
+  </nav>
+
+
+  <div id="page1">
+
+      <h2 style="color:black; margin-bottom: 20px; ">New Commodity</h2>
+      <form id="admin-commodity-new" action="/admincommoditynew" method="POST" onsubmit="return preventDefaultSubmit()"> 
+          <label for="commodity">Commodity:</label>
+          <input type="text" name="commodity" id="commodity" placeholder="- enter -" required autocomplete="off">
+          <p id="warn" style="color: red;font-size: 15px;"></p>
+          <br>
+          <label for="unit">Unit:</label>
+          <input type="text" name="unit" id="unit" placeholder="- enter -" required autocomplete="off">
+          <div id="suggestions"></div>
+          <br>
+          <label for="emergency">Requirement:</label>
+          <select name="emergency" id="emergency" required>
+            <option value="no" selected>Normal</option>
+            <option value="yes">Emergency</option>
+          </select>
+          <br>
+          <input type="hidden" name="token" id="token" value="<%= token %>">
+          <input type="submit" value="New Commodity">
+      </form> 
+
+      <br><br>
+
+    <% if (adminItemData && adminItemData.length) { %>
+      <table style="font-size: 1.6em;" border="1">
+        <thead>
+          <tr style="color:black;">
+            <th colspan="7">Commodity Table</th>
+          </tr>
+          <tr style="color:black;">
+            <th style="background-color: #ddd; padding: 5px;">commodityno</th>
+            <th style="background-color: #ddd; padding: 5px;">commodity</th>
+            <th style="background-color: #ddd; padding: 5px;">unit</th>
+            <th style="background-color: #ddd; padding: 5px;">Requirement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <form>
+          <% for (const item of adminItemData) { %>
+            <tr class="stock-row">
+              <td><input type="number" name="commodityno" id="commodityno" value="<%= item.commodityno %>" disabled></td>
+              <td><input type="text" name="commodity" id="commodity" value="<%= item.commodity %>" disabled></td>
+              <td><input type="text" name="unit" id="unit" value="<%= item.unit %>" disabled></td>
+              <% if (item.emergency=="yes") { %>
+                <td>
+                  <select name="emergency" id="emergency" disabled>
+                    <option value="yes" selected>Emergency</option> 
+                    <option value="no">Normal</option>
+                  </select>
+                </td>
+              <% } else{ %>
+                <td>
+                  <select name="emergency" id="emergency" disabled>
+                    <option value="yes">Emergency</option> 
+                    <option value="no" selected>Normal</option>
+                  </select>
+                </td>
+              <% } %>
+            </tr>
+          <% } %>
+          </form>
+        </tbody>
+      </table>
+    <% } else if (!(adminItemData && adminItemData.length)) { %>
+      <p>No data found.</p>
+    <% } %>
+
+    <br>
+    <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>
+
+    <script>
+      const searchInput = document.getElementById('unit');
+      const searchInput2 = document.getElementById('commodity');
+      const suggestionsBox = document.getElementById('suggestions');
+      // Adjust position dynamically when page is scrolled
+      const rect = searchInput.getBoundingClientRect();
+      suggestionsBox.style.left = `${rect.left}px`; // Align it with input field
+      suggestionsBox.style.top = `${rect.bottom + window.scrollY}px`; // Position it below input
+
+      let exist=0;
+      let typingTimeout;
+
+      searchInput.addEventListener('input', displaySuggestions);
+      searchInput.addEventListener('focus', displaySuggestions);
+      function displaySuggestions() {
+          const query = searchInput.value.trim();
+
+          // Clear any existing timeout (to prevent multiple API calls while typing)
+          clearTimeout(typingTimeout);
+
+          // Delay the fetch to only call it after the user stops typing (debounce effect)
+          typingTimeout = setTimeout(() => {
+              // Fetch suggestions and check for unit
+              fetch(`/search-unit?term=${query}`)
+                  .then(response => response.json())
+                  .then(data => {
+                      suggestionsBox.innerHTML = '';
+                      if (data.length > 0) {
+                          suggestionsBox.style.display = 'block';
+                          data.forEach(item => {
+                              const div = document.createElement('div');
+                              div.className = 'suggestion-item';
+                              div.textContent = item;
+                              div.addEventListener('click', () => {
+                                  searchInput.value = item; // Set the clicked item
+                                  suggestionsBox.style.display = 'none'; // Hide suggestions
+                              });
+                              suggestionsBox.appendChild(div);
+                          });
+                      } else {
+                          suggestionsBox.style.display = 'none';
+                      }
+                  })
+                  .catch(err => console.error('Error fetching suggestions:', err));
+          }, 500); // Delay after the user stops typing (500ms)
+      };
+
+      searchInput2.addEventListener('input', () => {
+          const query2 = searchInput2.value.trim();
+          if (query2.length <2) {
+              document.getElementById('warn').textContent = '';
+              return;
+          }
+          // Clear any existing timeout (to prevent multiple API calls while typing)
+          clearTimeout(typingTimeout);
+
+          // Delay the fetch to only call it after the user stops typing (debounce effect)
+          typingTimeout = setTimeout(() => {
+              if (query2.length <2) {
+                document.getElementById('warn').textContent = '';
+                return;
+              }
+              // Check if the typed commodity exists in the database
+              fetch(`/search-commodity?commodity=${query2}`)
+                  .then(response => response.json())
+                  .then(data => {
+                    if (data.length > 0) {
+                          let set="(Items ";
+                          exist=0;
+                          data.forEach(item => {
+                              set+=item+', ';
+                              if(query2==item){
+                                exist=1;
+                                document.getElementById('warn').textContent = `Item ${item} already exist!`;
+                              }
+                          });
+                          if(exist==0){
+                          document.getElementById('warn').textContent = `${set} already exist)`;
+                          }
+                      } else {
+                        document.getElementById('warn').textContent = '';
+                        exist=0;
+                      }
+                  })
+                  .catch(err => console.error('Error fetching unit:', err));
+          }, 500); // Delay after the user stops typing (500ms)
+      });
+
+      document.addEventListener('click', (e) => {
+          if (!suggestionsBox.contains(e.target) && e.target !== searchInput) {
+              suggestionsBox.style.display = 'none'; // Hide suggestions when clicking outside
+          }
+      });
+  </script>
+
+<script>
+  // Wait for the DOM content to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+      // Get the form element
+      var form = document.getElementById('admin-commodity-new');
+
+      // Add event listener for form submission
+      form.addEventListener('submit', function(event) {
+        console.log("hello");
+        if (exist==1) {
+                alert("Commodity already exist in commodity table.");
+                event.preventDefault(); // Prevent form submission
+                return;
+              }
+        const okCancel = confirm("Do you want to proceed?");
+              if (!okCancel) {
+                event.preventDefault(); // Prevent submission
+                return; 
+              }
+         // event.preventDefault(); // Prevent the default form submission
+      function preventDefaultSubmit() {
+          event.preventDefault();    
+              // Collect form data
+              var formData = new FormData(form);
+              
+              // Log form data to console for debugging (optional)
+              console.log('Form Data:', formData);
+
+              // Send form data to the server using fetch API
+              fetch('/admincommoditynew', {
+                  method: 'POST',
+                  body: formData
+              })
+              .then(response => {
+                  if (response.ok) {
+                      
+                     // window.location.href = "index.html";
+                  }
+                  else{
+                      // Optional: Redirect to login.html after successful signup (handled by app.js)
+                      throw new Error('Network response was not ok');
+                  }
+                  return response.text();
+              })
+              .then(response => response.json()) // Parse JSON response
+              .then(data => {
+                  console.log(data); // Log the response from the server
+                  // Optionally, you can redirect the user to another page upon successful signup
+                  //window.location.href = 'index.html';
+                  if (data.redirectTo) {
+                     // window.location.href = data.redirectTo; // Redirect based on server response
+                      }
+                      else {
+                          console.error('Error:', data.message || 'Unknown error');
+                      }
+              })
+              .catch(error => {
+                  console.error('There was a problem with the fetch operation:', error);
+              });
+              return false;
+  }
+      });
+  });
+   // Prevent default form submission  
+</script>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Page</title>
+<link rel="stylesheet" href="style.css"> <!-- Linking external CSS file -->
+<style>
+    .about-container {
+        font-family: Arial, sans-serif;
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+        background-color: #fff;
+        border: 5px solid #2c195e;
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        line-height: 1.7;
+        position: relative;
+        margin-top: 15px;
+    }
+
+    .about-container::before {
+        content: "";
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+        border: 3px solid #2c195e;
+        border-radius: 8px;
+        pointer-events: none; /* <-- Add this line */
+    }
+
+    .about-container h2 {
+        text-align: center;
+        color: #2c195e;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .about-container p {
+        font-size: 15px;
+        color: #333;
+        margin-bottom: 12px;
+    }
+
+    .about-container .key-feature {
+        font-weight: bold;
+        color: #4a2f85;
+    }
+</style>
+</head>
+<body>
+    <div class="area">
+        <ul class="circles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <center>
+                <div class="about-container">
+                    <h2 style="color: black;">About</h2>
+                    <h2>Project Name: HEISEI: Streamlining Disaster Relief with Real-Time Coordination</h2>
+                    <p>Guided By: Asst. Prof. Amrutha B K</p>
+                    <p style="margin-top: -10px;">Group No.: 11</p>
+                    <p style="margin-top: -10px;">Team Members: Ajeeb Kunhuty (TLY21CS008), Akash V V (TLY21CS009), Akhil K K (TLY21CS010), Ashwin Nambiar (TLY21CS019)</p>
+                
+                    <p>Natural disasters, such as floods, earthquakes, hurricanes, and wildfires, test the resilience and preparedness of nations, often exposing gaps in the ability to provide timely and appropriate relief. <strong>Heisei</strong> enhances disaster relief by connecting donors, volunteers, and relief camps in real-time, ensuring essential resources reach those in need.</p>
+
+                    <h2>Key Features</h2>
+                    <p><span class="key-feature">Transparent Donation Process:</span> Donors can view inventory levels and send items directly to volunteers.</p>
+                    <p><span class="key-feature">Real-Time Coordination:</span> Track resource availability at each relief center, ensuring donations match current demands.</p>
+                    <p><span class="key-feature">Blockchain Security:</span> Transactions are securely recorded on an immutable blockchain ledger, ensuring transparency and trust. This technology ensures data integrity, prevents unauthorized access, and builds confidence among all stakeholders.</p>
+                    <p><span class="key-feature">Volunteer Network:</span> Volunteers collect and deliver resources using optimized routes, reducing transportation time and costs.</p>
+                
+                    <p>By integrating real-time data, automated processes, and blockchain technology, <strong>Heisei</strong> streamlines disaster relief, ensuring that the right resources reach the right places at the right time. This comprehensive framework contributes to more resilient and well-supported communities during times of crisis.</p>
+                    
+                    <p>Already have an account? <a href="login.html">Login Here</a> | Don't have an account? <a href="signup.html">Register Here</a></p>
+                </div>
+            </center>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+
+ 
+</body>
+</html>

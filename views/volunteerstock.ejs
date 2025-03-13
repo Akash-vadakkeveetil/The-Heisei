@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer-Stock</title>
+  <link rel="stylesheet" href="donor.css">
+  <style>
+    /* General table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      color: white;
+    }
+  
+    /* Style table rows and cells */
+    .stock-row {
+      color: white;
+    }
+  
+    td {
+      padding: 8px;
+      text-align: center; /* Center-align all cells */
+      border: 1px solid #555; 
+      font-size: 16px;
+    }
+  
+    /* Universal style for all form controls */
+    input, select, textarea,button {
+      width: 90%; /* Adjust the width for uniformity */
+      padding: 4px;
+      text-align: center;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #ffffff; /* Light background for visibility */
+      color: #333; /* Dark text for readability */
+    }
+  
+    /* Style submit button */
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    input[type="email"] {
+      border: 1px solid #cccccc; /* Same border for all */
+    }
+    /* Center the submit button */
+    .center-submit {
+      text-align: center;
+    }
+    input[type="number"].invalid {
+    border: 2.5px solid red;
+    background-color: #facaca; /* Light red background */
+    }
+    .exceeds-message {
+    display: none;
+    color: red;
+    font-size: 12px;
+    text-align: center;
+    }
+    button {
+      background-color: #e5e5e5;
+      color: rgb(0, 0, 0);
+      cursor: pointer;
+      border-width:2px;
+      border-color: black;
+      padding: 5px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+    /* Preloader styles */
+  #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #2c195e; /* Dark background */
+      display: none; /* Hidden by default */
+      justify-content: center;
+      align-items: center;
+      z-index: 9999; /* Ensure it stays on top */
+    }
+
+    .loader {
+      border: 6px solid #f3f3f3; /* Light border */
+      border-top: 6px solid #4caf50; /* Spinner color */
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>  
+</head>
+<body>
+
+  <nav>
+    <h1>HEISEI</h1>
+    <div id="nav-part2">
+      <a href="volunteerhome.html"><h3>Home</h3></a>
+     <a href="volunteerlist.html"><h3>Supply</h3></a>
+     <a href="volunteerstock.html" class="active"><h3>Stock</h3></a>
+     <a href="volunteerrequest.html" class="volunteer-link"><h3>Requests</h3></a>
+     <a href="volunteerseeothers.html" class="volunteer-link"><h3>Search</h3></a>
+     <a href="volunteerhistory.html"><h3>History</h3></a>
+      <a href="login.html"><h3>LogOut</h3></a>
+      <h2><%= username %> </h2>
+    </div>
+    <script>
+      // Get the token from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      // Update all hyperlinks dynamically
+      document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && token) {
+              link.setAttribute('href', `${href}?token=${token}`);
+          }
+      });
+    </script>
+  </nav>
+
+
+  <div id="page1">
+
+    <div id="preloader">
+      <div class="loader"></div>
+      Loading time depends on your Network Connectivity.
+    </div>
+
+    <div id="toast" style="
+      position: fixed;
+  top: 100px; /* Position just below the navbar */
+  right: 20px; /* Align to the right edge with some padding */
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  max-width: 300px; /* Optional: Restrict width for better appearance */
+  word-wrap: break-word; /* Handle long messages */
+  ">
+      <span id="toast-message"></span>
+      <button id="close-toast" style="
+        position: absolute;
+        top: -10px;
+        right: -50px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+      ">✖</button>
+  </div>
+  
+
+<h1>Stock</h1>
+
+    <% if (volunteerStock && volunteerStock.length) { %>
+      <table style="font-size: 1.6em;" border="1">
+        <thead>
+          <tr style="color:black;">
+            <th style="background-color: #ddd; padding: 5px;">commodityno</th>
+            <th style="background-color: #ddd; padding: 5px;">commodity</th>
+            <th style="background-color: #ddd; padding: 5px;">unit</th>
+            <th style="background-color: #ddd; padding: 5px;">stock</th>
+            <th style="background-color: #ddd; padding: 5px;">sendto</th>
+            <th style="background-color: #ddd; padding: 5px;">quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <form id="volunteer-stock-send" action="/volunteerstocksend" method="POST" onsubmit="return preventDefaultSubmit()">
+          <% for (const item of volunteerStock) { %>
+          <% if (item) { %>
+          <tr class="stock-row">
+            <td><input type="number" name="commodityno" id="commodityno" value="<%= item.commodityno %>" readonly></td>
+            <td><input type="text" name="commodity" id="commodity" value="<%= item.commodity %>" readonly></td>
+            <td><input type="text" name="unit" id="unit" value="<%= item.unit %>" readonly></td>
+            <td><input type="number" name="stock" id="stock" value="<%= item.stock %>" min="<%= item.stock %>"></td>
+            <td><input type="text" name="sendto" id="sendto" placeholder="- enter -"></td>
+            <td><input type="number" name="quantity" id="quantity" placeholder="- enter -" min="1"><div class="exceeds-message">quantity exceeds stock</div></td> 
+          </tr>
+          <% } %>
+          <% } %>
+          <tr class="stock-row" >
+            <td colspan="3"> </td>
+            <input type="hidden" name="token" id="token" value="<%= token %>">
+            <td colspan="3"><button id="clear-storage" type="button">Clear All</button>   <input type="submit" value="Proceed"></td>
+          </tr>
+          </form>
+        </tbody>
+      </table>
+    <% } else if (!(volunteerStock && volunteerStock.length)) { %>
+      <p>No data found.</p>
+    <% } %>
+
+      <footer class="page-footer">
+        <br><br><br><br><br><br>
+    <p> </p>
+    </footer>     
+
+    <script>
+      document.querySelectorAll('.volunteer-link').forEach(link => {
+        link.addEventListener('click', function (event) {
+          document.getElementById('preloader').style.display = 'flex';
+        });
+      });
+    </script>
+
+      <script>
+       document.addEventListener("DOMContentLoaded", () => {
+    const urlParams1 = new URLSearchParams(window.location.search);
+    const alertMessage = urlParams1.get('alert');
+
+    if (alertMessage) {
+        const toast = document.getElementById("toast");
+        const toastMessage = document.getElementById("toast-message");
+        const closeToast = document.getElementById("close-toast");
+
+        // Replace newline character with <br> for line breaks
+        const formattedMessage = decodeURIComponent(alertMessage).replace(/\n/g, '<br>');
+
+        toastMessage.innerHTML = formattedMessage; // Use innerHTML to allow HTML rendering
+        toast.style.display = "block";
+        toast.style.opacity = "1";
+
+        closeToast.addEventListener("click", () => {
+            toast.style.opacity = "0";
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 500);
+        });
+    }
+});
+
+    </script>
+    
+
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          document.querySelectorAll('input[name="quantity"]').forEach((quantityInput) => {
+            quantityInput.addEventListener('input', (event) => {
+              const row = event.target.closest('tr'); // Get the current row
+              const stock = parseInt(row.querySelector('input[name="stock"]').value, 10);
+              const quantity = parseInt(event.target.value, 10);
+              const exceedsMessage = row.querySelector('.exceeds-message');
+      
+              if (quantity > stock) {
+                //event.target.style.backgroundColor = "red";
+                if (exceedsMessage) exceedsMessage.style.display = "block";
+              } else {
+                //event.target.style.backgroundColor = "";
+                if (exceedsMessage) exceedsMessage.style.display = "none";
+              }
+            });
+          });
+        });
+      </script>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          // Select all quantity input fields
+          const quantityInputs = document.querySelectorAll('input[name="quantity"]');
+      
+          // Attach an event listener to each quantity input
+          quantityInputs.forEach((input) => {
+            // Get the corresponding stock value from the same row
+            const stock = parseInt(
+              input.closest('tr').querySelector('input[name="stock"]').value,
+              10
+            );
+      
+            // Add an input event listener for real-time validation
+            input.addEventListener('input', function () {
+              if (this.value !== '' && parseInt(this.value, 10) > stock) {
+                this.classList.add('invalid'); // Mark as invalid if exceeds stock
+              } else {
+                this.classList.remove('invalid'); // Remove invalid styling
+              }
+            });
+          });
+        });
+      </script>
+      
+      <script>
+        // Wait for the DOM content to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the form element
+            var form = document.getElementById('volunteer-stock-send');
+
+            // Add event listener for form submission
+            form.addEventListener('submit', function(event) {
+              let isValid1 = true; // Flag to check if quantity does not exceed stock
+              let isValid2 = true; // Flag to check if both 'sendto' and 'quantity' are filled
+
+              // Check if quantity exceeds stock
+              const rows = document.querySelectorAll('tr.stock-row');
+              rows.forEach(row => {
+                const sendtoInput = row.querySelector('input[name="sendto"]');
+                const quantityInput = row.querySelector('input[name="quantity"]');
+                const stockInput = row.querySelector('input[name="stock"]');
+                const stock = parseFloat(stockInput?.value || 0);
+                const quantity = parseFloat(quantityInput?.value || 0);
+
+                // Check if quantity exceeds stock
+                if (quantity > stock) {
+                  isValid1 = false;
+                }
+
+                // Check if both 'sendto' and 'quantity' are filled when one is filled
+                if ((sendtoInput?.value.trim() || quantityInput?.value.trim()) && 
+                    (!sendtoInput?.value.trim() || !quantityInput?.value.trim())) {
+                  isValid2 = false;
+                }
+              });
+
+              if (!isValid1) {
+                alert('Cannot proceed when quantity is higher than stock.');
+                event.preventDefault(); // Prevent form submission
+                return;
+              }
+
+              if (!isValid2) {
+                alert("Both 'sendto' and 'quantity' must be filled.");
+                event.preventDefault(); // Prevent form submission
+                return;
+              }
+
+            //////////////////////////////////
+              const okCancel = confirm("Do you want to proceed?");
+              if (!okCancel) {
+                event.preventDefault(); // Prevent submission
+                return; 
+              }
+               // event.preventDefault(); // Prevent the default form submission
+            function preventDefaultSubmit() {
+                event.preventDefault();    
+                    // Collect form data
+                    var formData = new FormData(form);
+                    
+                    // Log form data to console for debugging (optional)
+                    console.log('Form Data:', formData);
+    
+                    // Send form data to the server using fetch API
+                    fetch('/volunteerstocksend', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            
+                           // window.location.href = "index.html";
+                        }
+                        else{
+                            // Optional: Redirect to login.html after successful signup (handled by app.js)
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(response => response.json()) // Parse JSON response
+                    .then(data => {
+                        console.log(data); // Log the response from the server
+                        // Optionally, you can redirect the user to another page upon successful signup
+                        //window.location.href = 'index.html';
+                        if (data.redirectTo) {
+                           // window.location.href = data.redirectTo; // Redirect based on server response
+                            }
+                            else {
+                                console.error('Error:', data.message || 'Unknown error');
+                            }
+                    })
+                    .catch(error => {
+                        console.error('There was a problem with the fetch operation:', error);
+                    });
+                    return false;
+        }
+            });
+        });
+         // Prevent default form submission
+   
+    </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+
+      // Select all quantity input fields
+      const quantityInputs = document.querySelectorAll('input[name="quantity"]');
+        // Attach an event listener to each quantity input
+      quantityInputs.forEach((input) => {
+          // Get the corresponding stock value from the same row
+          const name =input.closest('tr').querySelector('input[name="commodity"]').value;
+          // Add an input event listener for real-time validation
+          input.addEventListener('input', function () {
+            sessionStorage.setItem(name, parseInt(this.value, 10));
+          });
+      });
+      quantityInputs.forEach((input) => {
+        // Get the corresponding stock value from the same row
+        const name = input.closest('tr').querySelector('input[name="commodity"]').value;
+        // Check if a value is stored for this commodity and set it as the input's value
+        const storedValue = sessionStorage.getItem(name);
+        if (storedValue) {
+          input.value = storedValue;
+        }
+        });
+
+        // Select all sendto input fields
+      const sendtoInputs = document.querySelectorAll('input[name="sendto"]');
+        // Attach an event listener to each sendto input
+      sendtoInputs.forEach((input) => {
+          // Get the corresponding stock value from the same row
+          const name =input.closest('tr').querySelector('input[name="commodity"]').value+'1';
+          // Add an input event listener for real-time validation
+          input.addEventListener('input', function () {
+            sessionStorage.setItem(name, this.value);
+          });
+      });
+      sendtoInputs.forEach((input) => {
+        // Get the corresponding stock value from the same row
+        const name = input.closest('tr').querySelector('input[name="commodity"]').value+'1';
+        // Check if a value is stored for this commodity and set it as the input's value
+        const storedValue = sessionStorage.getItem(name);
+        if (storedValue) {
+          input.value = storedValue;
+        }
+        });
+
+      // Select all stock input fields
+      const stockInputs = document.querySelectorAll('input[name="stock"]');
+        // Attach an event listener to each sendto input
+      stockInputs.forEach((input) => {
+          // Get the corresponding stock value from the same row
+          const name =input.closest('tr').querySelector('input[name="commodity"]').value+'11';
+          // Add an input event listener for real-time validation
+          input.addEventListener('input', function () {
+            sessionStorage.setItem(name, parseInt(this.value, 10));
+          });
+      });
+      stockInputs.forEach((input) => {
+        // Get the corresponding stock value from the same row
+        const name = input.closest('tr').querySelector('input[name="commodity"]').value+'11';
+        // Check if a value is stored for this commodity and set it as the input's value
+        const storedValue = sessionStorage.getItem(name);
+        if (storedValue) {
+          input.value = storedValue;
+        }
+        });
+
+          // Clear sessionStorage on form submission
+        const form = document.querySelector('form');
+        if (form) {
+          form.addEventListener('submit', function () {
+            sessionStorage.clear();
+          });
+        }
+
+         // Add functionality to clear sessionStorage with a button
+        const clearButton = document.querySelector('#clear-storage');
+        if (clearButton) {
+          clearButton.addEventListener('click', function () {
+            sessionStorage.clear();
+            location.reload();
+          });
+        }
+
+  });
+</script>
+
+  </div>
+
+</body>
+</html>
