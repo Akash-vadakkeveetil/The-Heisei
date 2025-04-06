@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 12, 2025 at 08:08 PM
+-- Generation Time: Apr 02, 2025 at 04:52 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -36,6 +36,10 @@ CREATE TABLE `admin` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- RELATIONSHIPS FOR TABLE `admin`:
+--
+
+--
 -- Dumping data for table `admin`
 --
 
@@ -65,6 +69,10 @@ CREATE TABLE `admininfo` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- RELATIONSHIPS FOR TABLE `admininfo`:
+--
+
+--
 -- Dumping data for table `admininfo`
 --
 
@@ -88,6 +96,18 @@ CREATE TABLE `camp1` (
   `status` set('Not_available','Received') NOT NULL DEFAULT 'Not_available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- RELATIONSHIPS FOR TABLE `camp1`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--   `receivedfrom`
+--       `login` -> `username`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -101,6 +121,16 @@ CREATE TABLE `camp1list` (
   `stock` int(11) NOT NULL,
   `additionrequired` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `camp1list`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--
 
 --
 -- Dumping data for table `camp1list`
@@ -133,6 +163,18 @@ CREATE TABLE `camp2` (
   `status` set('Not_available','Received') NOT NULL DEFAULT 'Not_available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- RELATIONSHIPS FOR TABLE `camp2`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--   `receivedfrom`
+--       `login` -> `username`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -146,6 +188,16 @@ CREATE TABLE `camp2list` (
   `stock` int(11) NOT NULL,
   `additionrequired` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `camp2list`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--
 
 -- --------------------------------------------------------
 
@@ -166,6 +218,10 @@ CREATE TABLE `campresidents` (
   `middle_aged` int(11) NOT NULL DEFAULT 0,
   `seniors` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `campresidents`:
+--
 
 --
 -- Dumping data for table `campresidents`
@@ -190,6 +246,12 @@ CREATE TABLE `camps` (
   `contact` decimal(10,0) NOT NULL,
   `blocked` set('yes','no') NOT NULL DEFAULT 'no'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `camps`:
+--   `username`
+--       `login` -> `username`
+--
 
 --
 -- Dumping data for table `camps`
@@ -217,6 +279,20 @@ CREATE TABLE `campslists` (
   `expecton` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- RELATIONSHIPS FOR TABLE `campslists`:
+--   `username`
+--       `camps` -> `username`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--   `emergency`
+--       `commoditytable` -> `emergency`
+--   `username`
+--       `camps` -> `username`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -229,6 +305,16 @@ CREATE TABLE `commoditylive` (
   `additionrequired` int(11) DEFAULT NULL,
   `unit` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `commoditylive`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--
 
 --
 -- Dumping data for table `commoditylive`
@@ -260,6 +346,10 @@ CREATE TABLE `commoditytable` (
   `unit` varchar(255) NOT NULL,
   `emergency` enum('yes','no') NOT NULL DEFAULT 'no'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `commoditytable`:
+--
 
 --
 -- Dumping data for table `commoditytable`
@@ -297,6 +387,20 @@ CREATE TABLE `donorhistory` (
   `status` set('Not_received','Received') NOT NULL DEFAULT 'Not_received'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- RELATIONSHIPS FOR TABLE `donorhistory`:
+--   `username`
+--       `login` -> `username`
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--   `volunteerid`
+--       `volunteers` -> `username`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -314,6 +418,12 @@ CREATE TABLE `donors` (
   `contactnumber` decimal(10,0) NOT NULL,
   `blocked` set('yes','no') NOT NULL DEFAULT 'no'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `donors`:
+--   `username`
+--       `login` -> `username`
+--
 
 --
 -- Dumping data for table `donors`
@@ -336,6 +446,10 @@ CREATE TABLE `login` (
   `password` varchar(255) NOT NULL,
   `category` set('donor','volunteer','campcoordinator','admin') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `login`:
+--
 
 --
 -- Dumping data for table `login`
@@ -367,8 +481,13 @@ INSERT INTO `login` (`username`, `email`, `password`, `category`) VALUES
 CREATE TABLE `transaction` (
   `username` varchar(255) NOT NULL,
   `receiveno` int(11) NOT NULL,
-  `transactionID` varchar(255) NOT NULL
+  `transactionID` varchar(255) NOT NULL,
+  `timestamp` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `transaction`:
+--
 
 -- --------------------------------------------------------
 
@@ -379,6 +498,12 @@ CREATE TABLE `transaction` (
 CREATE TABLE `volcamp` (
   `username` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `volcamp`:
+--   `username`
+--       `login` -> `username`
+--
 
 --
 -- Dumping data for table `volcamp`
@@ -413,6 +538,20 @@ CREATE TABLE `volcamphistory` (
   `status` set('Not_received','Received') NOT NULL DEFAULT 'Not_received'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- RELATIONSHIPS FOR TABLE `volcamphistory`:
+--   `username`
+--       `volcamp` -> `username`
+--   `sendto`
+--       `volcamp` -> `username`
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -430,6 +569,18 @@ CREATE TABLE `volunteer1` (
   `status` set('Received','Not_available') NOT NULL DEFAULT 'Not_available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- RELATIONSHIPS FOR TABLE `volunteer1`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--   `receivedfrom`
+--       `login` -> `username`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -442,6 +593,16 @@ CREATE TABLE `volunteer1stock` (
   `unit` varchar(255) NOT NULL,
   `stock` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `volunteer1stock`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--
 
 -- --------------------------------------------------------
 
@@ -460,6 +621,18 @@ CREATE TABLE `volunteer2` (
   `status` set('Received','Not_available') NOT NULL DEFAULT 'Not_available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- RELATIONSHIPS FOR TABLE `volunteer2`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--   `receivedfrom`
+--       `login` -> `username`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -472,6 +645,16 @@ CREATE TABLE `volunteer2stock` (
   `unit` varchar(255) NOT NULL,
   `stock` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `volunteer2stock`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--
 
 -- --------------------------------------------------------
 
@@ -490,6 +673,18 @@ CREATE TABLE `volunteer3` (
   `status` set('Received','Not_available') NOT NULL DEFAULT 'Not_available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- RELATIONSHIPS FOR TABLE `volunteer3`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--   `receivedfrom`
+--       `login` -> `username`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -502,6 +697,16 @@ CREATE TABLE `volunteer3stock` (
   `unit` varchar(255) NOT NULL,
   `stock` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `volunteer3stock`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--
 
 -- --------------------------------------------------------
 
@@ -520,6 +725,18 @@ CREATE TABLE `volunteer4` (
   `status` set('Received','Not_available') NOT NULL DEFAULT 'Not_available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- RELATIONSHIPS FOR TABLE `volunteer4`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--   `receivedfrom`
+--       `login` -> `username`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -532,6 +749,16 @@ CREATE TABLE `volunteer4stock` (
   `unit` varchar(255) NOT NULL,
   `stock` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `volunteer4stock`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--
 
 -- --------------------------------------------------------
 
@@ -550,6 +777,18 @@ CREATE TABLE `volunteer5` (
   `status` set('Received','Not_available') NOT NULL DEFAULT 'Not_available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- RELATIONSHIPS FOR TABLE `volunteer5`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--   `receivedfrom`
+--       `login` -> `username`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -562,6 +801,16 @@ CREATE TABLE `volunteer5stock` (
   `unit` varchar(255) NOT NULL,
   `stock` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `volunteer5stock`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--
 
 -- --------------------------------------------------------
 
@@ -580,6 +829,18 @@ CREATE TABLE `volunteer6` (
   `status` set('Received','Not_available') NOT NULL DEFAULT 'Not_available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- RELATIONSHIPS FOR TABLE `volunteer6`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--   `receivedfrom`
+--       `login` -> `username`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -592,6 +853,16 @@ CREATE TABLE `volunteer6stock` (
   `unit` varchar(255) NOT NULL,
   `stock` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `volunteer6stock`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--
 
 -- --------------------------------------------------------
 
@@ -610,6 +881,18 @@ CREATE TABLE `volunteer7` (
   `status` set('Received','Not_available') NOT NULL DEFAULT 'Not_available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- RELATIONSHIPS FOR TABLE `volunteer7`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--   `receivedfrom`
+--       `login` -> `username`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -622,6 +905,16 @@ CREATE TABLE `volunteer7stock` (
   `unit` varchar(255) NOT NULL,
   `stock` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `volunteer7stock`:
+--   `commodityno`
+--       `commoditytable` -> `commodityno`
+--   `commodity`
+--       `commoditytable` -> `commodity`
+--   `unit`
+--       `commoditytable` -> `unit`
+--
 
 -- --------------------------------------------------------
 
@@ -643,6 +936,12 @@ CREATE TABLE `volunteers` (
   `availabilityfactor` int(11) NOT NULL DEFAULT 0,
   `blocked` set('yes','no') NOT NULL DEFAULT 'no'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- RELATIONSHIPS FOR TABLE `volunteers`:
+--   `username`
+--       `login` -> `username`
+--
 
 --
 -- Dumping data for table `volunteers`
@@ -912,7 +1211,7 @@ ALTER TABLE `volunteers`
 -- AUTO_INCREMENT for table `camp1`
 --
 ALTER TABLE `camp1`
-  MODIFY `receiveno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `receiveno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `camp2`
@@ -930,19 +1229,19 @@ ALTER TABLE `commoditytable`
 -- AUTO_INCREMENT for table `donorhistory`
 --
 ALTER TABLE `donorhistory`
-  MODIFY `SIno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+  MODIFY `SIno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
 
 --
 -- AUTO_INCREMENT for table `volcamphistory`
 --
 ALTER TABLE `volcamphistory`
-  MODIFY `SIno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
+  MODIFY `SIno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
 
 --
 -- AUTO_INCREMENT for table `volunteer1`
 --
 ALTER TABLE `volunteer1`
-  MODIFY `receiveno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
+  MODIFY `receiveno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
 
 --
 -- AUTO_INCREMENT for table `volunteer2`
@@ -954,7 +1253,7 @@ ALTER TABLE `volunteer2`
 -- AUTO_INCREMENT for table `volunteer3`
 --
 ALTER TABLE `volunteer3`
-  MODIFY `receiveno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+  MODIFY `receiveno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `volunteer4`

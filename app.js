@@ -17,6 +17,7 @@ const cors = require('cors');
 const puppeteer = require('puppeteer-extra');
 require('dotenv').config();
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const fs = require('fs');
 
 //ejs connection
 app.set('view engine', 'ejs');
@@ -37,7 +38,7 @@ const pool = mysql.createPool({
     connectionLimit: 10000,
     host: 'localhost',
     user: 'root', 
-    password: '', 
+    password: 'root', 
     database: 'heisei1'
 });
 
@@ -156,17 +157,17 @@ app.post('/forgotform', (req, res) => {
 // Handle POST request for signup//////////////////////////////////////////////////////
 // Function to send an email using Puppeteer
 async function sendTutanotaEmail(to, subject, message) {
-    // const browser = await puppeteer.launch({ headless: false });
+    //const browser = await puppeteer.launch({ headless: false });
     const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
     await page.goto('https://mail.tutanota.com', { waitUntil: 'networkidle2' });
 
     // Wait for the email input field
-    await page.waitForSelector('input[data-testid="tf:mailAddress_label"]', { visible: true });
-    await page.type('input[data-testid="tf:mailAddress_label"]', 'forwardformation44@tutamail.com');
+    await page.waitForSelector('input[data-testid="tfi:mailAddress_label"]', { visible: true });
+    await page.type('input[data-testid="tfi:mailAddress_label"]', 'forwardformation44@tutamail.com');
     // Wait for the password input field
-    await page.waitForSelector('input[data-testid="tf:password_label"]', { visible: true });
-    await page.type('input[data-testid="tf:password_label"]', 'Forward44@tut');
+    await page.waitForSelector('input[data-testid="tfi:password_label"]', { visible: true });
+    await page.type('input[data-testid="tfi:password_label"]', 'Forward44@tut');
     // Click the login button (adjust if needed)
     await page.keyboard.press('Enter');
     // Wait for inbox to load
@@ -179,9 +180,9 @@ async function sendTutanotaEmail(to, subject, message) {
    console.log("Compose email window opened!");
 
     // Wait for "To" field and enter recipient email
-    await page.waitForSelector('input[data-testid="tf:to_label"]', { visible: true });
+    await page.waitForSelector('input[data-testid="tfi:to_label"]', { visible: true });
     await page.evaluate((To) => {
-        const inputField = document.querySelector('input[data-testid="tf:to_label"]');
+        const inputField = document.querySelector('input[data-testid="tfi:to_label"]');
         if (inputField) {
             inputField.value = ''; // Clear any existing value
             inputField.value = `${To}`; // Set the full email
@@ -190,9 +191,9 @@ async function sendTutanotaEmail(to, subject, message) {
     },to);
 
      // Wait for "Subject" field and enter subject
-     await page.waitForSelector('input[data-testid="tf:subject_label"]', { visible: true });
+     await page.waitForSelector('input[data-testid="tfi:subject_label"]', { visible: true });
      await page.evaluate((sub) => {
-        const inputField1 = document.querySelector('input[data-testid="tf:subject_label"]');
+        const inputField1 = document.querySelector('input[data-testid="tfi:subject_label"]');
         if (inputField1) {
             inputField1.value = ''; // Clear any existing value
             inputField1.value = `${sub}`; // Set the full email
@@ -1766,7 +1767,21 @@ app.get('/admin-home', async(req, res) => {
         return;
       }
       
-      const [Result1, Result2,Result3,Result4,Result5] = await Promise.all([
+      const [Result0,Result1, Result2,Result3,Result4,Result5] = await Promise.all([
+        new Promise((resolve, reject) => {
+            const query1 = 'SELECT COUNT(*) as count from donors';
+            connection.query(query1, (error, results) => {
+                if (error) {
+                    reject(error);
+                    console.error('Error executing query: ' + error.message);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+                else{
+                    resolve(results);
+                }
+        });
+        }),
         new Promise((resolve, reject) => {
         const query1 = 'SELECT COUNT(*) as count from camps';
         connection.query(query1, (error, results) => {
@@ -1840,12 +1855,69 @@ app.get('/admin-home', async(req, res) => {
         ]);
 
         connection.release();
-        res.render('adminhome', { totalCamps:Result1[0].count,totalColVol:Result2[0].count,activeColVol:Result3[0].count,totalGatVol:Result4[0].count,activeGatVol:Result5[0].count,username,token }); 
+        res.render('adminhome', { totalDonors:Result0[0].count,totalCamps:Result1[0].count,totalColVol:Result2[0].count,activeColVol:Result3[0].count,totalGatVol:Result4[0].count,activeGatVol:Result5[0].count,username,token }); 
     });
     });
     }else {
         res.redirect('/login.html');
     }
+});
+app.get('/getMapData', async (req, res) => {
+    pool.getConnection(async(err, connection) => {
+        if (err) {
+          console.error('Error connecting to database: ' + err.message);
+          res.status(500).send('Internal Server Error');
+          return;
+        }
+
+        const [campMap,volColMap,volGatMap] = await Promise.all([
+            new Promise((resolve, reject) => {
+            const query6 = `SELECT * from camps`;
+            connection.query(query6, (error, results) => {
+                if (error) {
+                    reject(error);
+                    console.error('Error executing query: ' + error.message);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+                else{
+                    resolve(results);
+                }
+            });
+            }),
+            new Promise((resolve, reject) => {
+            const query7 = `SELECT * from volunteers where level='collector'`;
+            connection.query(query7, (error, results) => {
+                if (error) {
+                    reject(error);
+                    console.error('Error executing query: ' + error.message);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+                else{
+                    resolve(results);
+                }
+            });
+            }),
+            new Promise((resolve, reject) => {
+            const query8 = `SELECT * from volunteers where level='gatherer'`;
+            connection.query(query8, (error, results) => {
+                if (error) {
+                    reject(error);
+                    console.error('Error executing query: ' + error.message);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+                else{
+                    resolve(results);
+                }
+            });
+            })
+            ]);
+
+        connection.release();
+        res.json({ campMap, volColMap, volGatMap });
+    });
 });
 app.get("/getDetails", (req, res) => {
     let type = req.query.type;
@@ -1856,7 +1928,9 @@ app.get("/getDetails", (req, res) => {
           res.status(500).send('Internal Server Error');
           return;
         }
-        if (type === "camps") {
+        if (type === "donors") {
+            query = "SELECT * FROM donors";
+        } else if (type === "camps") {
             query = "SELECT * FROM camps";
         } else if (type === "collectors") {
             query = "SELECT * FROM volunteers where level='collector' ";
@@ -2687,7 +2761,7 @@ async function getDonatedData(username) {
         const connection = await mysql2.createConnection({
             host: 'localhost', // Replace with your database server hostname/IP
             user: 'root', // Replace with your database username
-            password: '', // Replace with your database password
+            password: 'root', // Replace with your database password
             database: 'heisei1' // Optional - Replace with database name if needed
         });
         const [rows] = await connection.query(`SELECT * FROM donorhistory where username='${username}' `); 
@@ -2728,7 +2802,7 @@ async function getDonateData() {
         const connection = await mysql2.createConnection({
             host: 'localhost', // Replace with your database server hostname/IP
             user: 'root', // Replace with your database username
-            password: '', // Replace with your database password
+            password: 'root', // Replace with your database password
             database: 'heisei1' // Optional - Replace with database name if needed
         });
         const [rows] = await connection.query(`SELECT * FROM commoditytable ORDER BY commodity ASC`); 
@@ -2795,6 +2869,12 @@ app.post('/donordonate', async (req, res) => {
             res.status(500).send('Internal Server Error');
             return;
         }
+        connection.beginTransaction(async (err) => {
+            if (err) {
+                console.error('Error starting transaction: ' + err.message);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
         for(let i=0; i < quantity.length; i++) {
         if (quantity[i] && parseInt(quantity[i]) > 0) {
         const [commoditynoResult, unitResult] = await Promise.all([
@@ -2830,17 +2910,7 @@ app.post('/donordonate', async (req, res) => {
         const commodityno = commoditynoResult[0].commodityno;
         const unit = unitResult[0].unit;
         
-        let result;
-        try{
-            result=await sendTranscBlock(username,volunteerid,'donation',commodity[i],quantity[i]);//888888888888888888888
-            if(result.startsWith("Error")){
-                res.render('error', { error: result });
-                return;
-            }
-        }catch(error){
-            res.render('error', { error});
-            return;
-        }
+        
 
         const query3 = 'INSERT INTO donorhistory (username,commodityno,commodity,quantity,unit,volunteerid,date) VALUES (?, ?, ?, ?, ?, ?,?)';
         connection.query(query3, [username,commodityno,commodity[i],quantity[i],unit,volunteerid,formattedDate], (error, results) => {
@@ -2858,6 +2928,25 @@ app.post('/donordonate', async (req, res) => {
                 return;
             }
         });
+        let result;
+        try{
+            result=await sendTranscBlock(username,volunteerid,'donation',commodity[i],quantity[i]);//888888888888888888888
+            if(result.startsWith("Error")){
+                //Rollback MySQL changes on failure
+                connection.rollback(() => {
+                    connection.release();
+                });
+                res.render('error', { error: result });
+                return;
+            }
+        }catch(error){
+            //Rollback MySQL changes on failure
+            connection.rollback(() => {
+                connection.release();
+            });
+            res.render('error', { error});
+            return;
+        }
         const query5 = `SELECT receiveno FROM ${volunteerid} WHERE commodityno=? AND commodity=? AND quantity=? AND unit=? AND receivedfrom=? AND date=? AND status=? AND receiveno NOT IN (SELECT receiveno FROM transaction WHERE username=?)LIMIT 1`;
         connection.query(query5, [commodityno,commodity[i],quantity[i],unit,username,formattedDate,'Not_available',volunteerid], (error, results) => {
             if (error) {
@@ -2875,9 +2964,17 @@ app.post('/donordonate', async (req, res) => {
             });
         });
         }}
-        connection.release();
+        //Commit MySQL transaction
+        connection.commit((err) => {
+            if (err) {
+                console.error('Error committing transaction: ' + err.message);
+                res.status(500).send({ error: 'Transaction commit failed' });
+            }
+            connection.release();
+        });
         res.redirect(`/donordonate-details?token=${token}&username=${volunteerid}`);
         });
+    });
     });
     }else {
         res.redirect('/login.html');
@@ -2963,6 +3060,12 @@ app.post('/volunteercommoditystatus', async (req, res) => {
             res.status(500).send('Internal Server Error');
             return;
         }
+        connection.beginTransaction(async (err) => {
+            if (err) {
+                console.error('Error starting transaction: ' + err.message);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
         for(let i=0;i<status.length;i++) {
             if(status[i]=='Received') {
             const [R] = await Promise.all([
@@ -2996,17 +3099,6 @@ app.post('/volunteercommoditystatus', async (req, res) => {
                     }
                 });
                 }); 
-
-                try{
-                    let result=await confirmTranscBlock( R[0].receivedfrom,Result33[0].transactionID);//888888888888888888888
-                    if(result.startsWith("Error")){
-                        res.render('error', { error: result });
-                        return;
-                    }
-                }catch(error){
-                    res.render('error', { error});
-                    return;
-                }
 
                 const [Result1,Result11,Result111] = await Promise.all([
                     new Promise((resolve, reject) => {
@@ -3119,10 +3211,37 @@ app.post('/volunteercommoditystatus', async (req, res) => {
                         });
                         })
                     ]); 
+                    
+                try{
+                    let result=await confirmTranscBlock( R[0].receivedfrom,Result33[0].transactionID);//888888888888888888888
+                    if(result.startsWith("Error")){
+                         //Rollback MySQL changes on failure
+                        connection.rollback(() => {
+                            connection.release();
+                        });
+                        res.render('error', { error: result });
+                        return;
+                    }
+                }catch(error){
+                     //Rollback MySQL changes on failure
+                    connection.rollback(() => {
+                        connection.release();
+                    });
+                    res.render('error', { error});
+                    return;
+                }
         }
         }
-        connection.release();
+        //Commit MySQL transaction
+        connection.commit((err) => {
+            if (err) {
+                console.error('Error committing transaction: ' + err.message);
+                res.status(500).send({ error: 'Transaction commit failed' });
+            }
+            connection.release();
+        });
         res.redirect(`/volunteer-list?token=${token}`);
+    });
     });
     });
     }else {
@@ -3161,6 +3280,12 @@ app.post('/volunteerstocksend', async (req, res) => {
             res.status(500).send('Internal Server Error');
             return;
         }
+    connection.beginTransaction(async (err) => {
+        if (err) {
+            console.error('Error starting transaction: ' + err.message);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
         const [Result0] = await Promise.all([
             new Promise((resolve, reject) => {
             const query0 = `SELECT * from volunteers where username=? `;
@@ -3177,6 +3302,42 @@ app.post('/volunteerstocksend', async (req, res) => {
             })
         ]);
         let level = Result0[0].level;
+        let directCampFlag = Array(commodityno.length);
+        for(let i=0;i<commodityno.length;i++) {
+            if(quantity[i]>0) {
+                const Result100 = await new Promise((resolve, reject) => {
+                    const query100 = `SELECT username,category from login where username=?`;
+                    connection.query(query100, [sendto[i]], (error, results) => {
+                        if (error) {
+                            reject(error);
+                            console.error('Error executing query: ' + error.message);
+                            res.status(500).send('Internal Server Error');
+                            return;
+                        } else {
+                            resolve(results);
+                        }
+                    });
+                });
+                if (Result100 && Result100.length > 0) {
+                    if(Result100[0].category=="campcoordinator"){
+                        directCampFlag[i]=1;
+                    }else if(Result100[0].category=="volunteer"){
+                        directCampFlag[i]=0;
+                    }else{
+                        connection.release();
+                        let alertMessage="Send to valid address only";
+                        res.redirect(`/volunteer-stock?token=${token}&alert=${encodeURIComponent(alertMessage)}`);
+                        return;
+                    }
+                } else {
+                    connection.release();
+                    let alertMessage="Send to valid address only";
+                    res.redirect(`/volunteer-stock?token=${token}&alert=${encodeURIComponent(alertMessage)}`);
+                    return;
+                }
+            }
+        }
+        /* planned change
         if(level == 'collector') {
             for(let i=0;i<commodityno.length;i++) {
                 if(quantity[i]>0) {
@@ -3223,32 +3384,12 @@ app.post('/volunteerstocksend', async (req, res) => {
                 }
             }
         }
+        planned change */
         let alertMessage="Stock successfully send are:-";
         for(let i=0;i<commodityno.length;i++) {
 
-            const query22 = `UPDATE ${username+'stock'} set stock=? where commodityno=?`;
-            connection.query(query22, [stock[i],commodityno[i]], (error, results) => {
-                if (error) {
-                    console.error('Error executing query: ' + error.message);
-                    res.status(500).send('Internal Server Error');
-                    return;
-                }
-            });
         if(quantity[i]>0) {
-            
-            let result;
-            try{
-                result=await sendTranscBlock(username,sendto[i],'deliver',commodity[i],quantity[i]);//888888888888888888888
-                if(result.startsWith("Error")){
-                    res.render('error', { error: result });
-                    return;
-                }
-            }catch(error){
-                res.render('error', { error});
-                return;
-            }
-
-            if(level == 'collector') {
+            if(level == 'collector' && directCampFlag[i]==0) {
             let quantitycopy = quantity[i];
             while(quantitycopy>0) {
                 const Result0 = await calculateVolunteerRequests(username,commodity[i]);
@@ -3256,6 +3397,14 @@ app.post('/volunteerstocksend', async (req, res) => {
                     return res.redirect(`/stockdinosaur-game.html?token=${token}`); 
                 }
                 const Result00=Result0.campsLists;
+                //planned change start
+                if(Array.isArray(Result00) && Result00.length === 0)
+                {
+                    console.log('Remaining quantity: ',{quantitycopy});
+                    quantitycopy=0;
+                    break;
+                }
+                //planned change end
                 const filterAndFindMinimumTimestamp = (Result, send_to) => {
                     // Step 1: Filter rows where 'sendto' matches 'send_to'
                     const filteredRows = Result.filter(row => row.sendto === send_to);
@@ -3301,10 +3450,74 @@ app.post('/volunteerstocksend', async (req, res) => {
                 }
                 } else {
                     console.log('Remaining quantity: ',{quantitycopy});
-                    quantity[i]=quantity[i]-quantitycopy;
+                   /*planned change quantity[i]=quantity[i]-quantitycopy; planned change*/
                     quantitycopy=0;
                 }
             }
+            }else if(level == 'collector' && directCampFlag[i]==1) {
+                let quantitycopy = quantity[i];
+                while(quantitycopy>0) {
+                    const [Result0] = await new Promise((resolve, reject) => {
+                        const query0 = `SELECT * from campslists where username=? and commodity=? and gathered<additionrequired ORDER BY timestamp ASC LIMIT 1`;
+                        connection.query(query0, [sendto[i],commodity[i]], (error, results) => {
+                            if (error) {
+                                reject(error);
+                                console.error('Error executing query: ' + error.message);
+                                res.status(500).send('Internal Server Error');
+                                return;
+                            } else {
+                                resolve(results);
+                            }
+                        });
+                    });
+                    if(Result0) {
+                    if((Result0.additionrequired-Result0.gathered)>quantitycopy) {
+                        const query00 = `UPDATE campslists set gathered=gathered+? where username=? and commodity=? and timestamp=? LIMIT 1`;
+                        connection.query(query00, [quantitycopy,Result0.username,commodity[i],Result0.timestamp], (error, results) => {
+                            if (error) {
+                                console.error('Error executing query: ' + error.message);
+                                res.status(500).send('Internal Server Error');
+                                return;
+                            }
+                        });
+
+                        if((Result0.additionrequired-Result0.collected)>quantitycopy) {
+                            const query00 = `UPDATE campslists set collected=collected+? where username=? and commodity=? and timestamp=? LIMIT 1`;
+                            connection.query(query00, [quantitycopy,Result0.username,commodity[i],Result0.timestamp], (error, results) => {
+                                if (error) {
+                                    console.error('Error executing query: ' + error.message);
+                                    res.status(500).send('Internal Server Error');
+                                    return;
+                                }
+                            });
+                        } else {
+                            const query00 = `UPDATE campslists set collected=additionrequired where username=? and commodity=? and timestamp=? LIMIT 1`;
+                            connection.query(query00, [Result0.username,commodity[i],Result0.timestamp], (error, results) => {
+                                if (error) {
+                                    console.error('Error executing query: ' + error.message);
+                                    res.status(500).send('Internal Server Error');
+                                    return;
+                                }
+                            });
+                        }
+
+                        quantitycopy=0;
+                    } else {
+                        const query00 = `UPDATE campslists set gathered=additionrequired,collected=additionrequired  where username=? and commodity=? and timestamp=? LIMIT 1`;
+                        connection.query(query00, [Result0.username,commodity[i],Result0.timestamp], (error, results) => {
+                            if (error) {
+                                console.error('Error executing query: ' + error.message);
+                                res.status(500).send('Internal Server Error');
+                                return;
+                            }
+                        });
+                        quantitycopy=quantitycopy-(Result0.additionrequired-Result0.gathered);
+                    }
+                    } else{
+                        console.log('Remaining quantity: ',{quantitycopy});
+                        quantitycopy=0;
+                    }
+                }
             } else if(level == 'gatherer') {
                 let quantitycopy = quantity[i];
                 while(quantitycopy>0) {
@@ -3358,6 +3571,44 @@ app.post('/volunteerstocksend', async (req, res) => {
                     return;
                 }
             });
+            
+            const query2 = `UPDATE ${username+'stock'} set stock=stock-? where commodityno=?`;
+            connection.query(query2, [quantity[i],commodityno[i]], (error, results) => {
+                if (error) {
+                    console.error('Error executing query: ' + error.message);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+            });
+            const query3 = `INSERT INTO volcamphistory (username,commodityno,commodity,quantity,unit,sendto,date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+            connection.query(query3, [username,commodityno[i],commodity[i],quantity[i],unit[i],sendto[i],formattedDate], (error, results) => {
+                if (error) {
+                    console.error('Error executing query: ' + error.message);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+            });
+
+            let result;
+            try{
+                result=await sendTranscBlock(username,sendto[i],'deliver',commodity[i],quantity[i]);//888888888888888888888
+                if(result.startsWith("Error")){
+                    //Rollback MySQL changes on failure
+                    connection.rollback(() => {
+                        connection.release();
+                    });
+                    res.render('error', { error: result });
+                    return;
+                }
+            }catch(error){
+                //Rollback MySQL changes on failure
+                connection.rollback(() => {
+                    connection.release();
+                });
+                res.render('error', { error});
+                return;
+            }
+
             const query5 = `SELECT receiveno from ${sendto[i]} where commodityno=? and commodity=? and quantity=? and unit=? and receivedfrom=? and date=? and status=? AND receiveno NOT IN (SELECT receiveno FROM transaction WHERE username=?)LIMIT 1`;
             connection.query(query5, [commodityno[i],commodity[i],quantity[i],unit[i],username,formattedDate,'Not_available',sendto[i]], (error, results) => {
                 if (error) {
@@ -3375,27 +3626,20 @@ app.post('/volunteerstocksend', async (req, res) => {
                     console.log("Transaction Inserted");
                 });
             });
-            const query2 = `UPDATE ${username+'stock'} set stock=stock-? where commodityno=?`;
-            connection.query(query2, [quantity[i],commodityno[i]], (error, results) => {
-                if (error) {
-                    console.error('Error executing query: ' + error.message);
-                    res.status(500).send('Internal Server Error');
-                    return;
-                }
-            });
-            const query3 = `INSERT INTO volcamphistory (username,commodityno,commodity,quantity,unit,sendto,date) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-            connection.query(query3, [username,commodityno[i],commodity[i],quantity[i],unit[i],sendto[i],formattedDate], (error, results) => {
-                if (error) {
-                    console.error('Error executing query: ' + error.message);
-                    res.status(500).send('Internal Server Error');
-                    return;
-                }
-            });
         alertMessage=alertMessage+"\n"+commodity[i]+": "+quantity[i];
         }
         }
-        connection.release();
+        //Commit MySQL transaction
+        connection.commit((err) => {
+            if (err) {
+                console.error('Error committing transaction: ' + err.message);
+                res.status(500).send({ error: 'Transaction commit failed' });
+            }
+            connection.release();
+        });
+
         res.redirect(`/volunteer-stock?token=${token}&alert=${encodeURIComponent(alertMessage)}`);
+    });
     });
     });
     }else {
@@ -3410,7 +3654,7 @@ async function getVolunteerStock(username) {
         const connection = await mysql2.createConnection({
             host: 'localhost', // Replace with your database server hostname/IP
             user: 'root', // Replace with your database username
-            password: '', // Replace with your database password
+            password: 'root', // Replace with your database password
             database: 'heisei1' // Optional - Replace with database name if needed
         });
         const [rows] = await connection.query(`SELECT * FROM ${username+'stock'}`);
@@ -3462,7 +3706,7 @@ async function getVolunteerData(username) {
         const connection = await mysql2.createConnection({
             host: 'localhost', // Replace with your database server hostname/IP
             user: 'root', // Replace with your database username
-            password: '', // Replace with your database password
+            password: 'root', // Replace with your database password
             database: 'heisei1' // Optional - Replace with database name if needed
         });
         const [rows] = await connection.query(`SELECT * FROM ${username}`); 
@@ -3504,7 +3748,7 @@ async function getVolunteerSend(username) {
         const connection = await mysql2.createConnection({
             host: 'localhost', // Replace with your database server hostname/IP
             user: 'root', // Replace with your database username
-            password: '', // Replace with your database password
+            password: 'root', // Replace with your database password
             database: 'heisei1' // Optional - Replace with database name if needed
         });
         const [rows] = await connection.query(`SELECT * FROM volcamphistory where username='${username}' `); 
@@ -3546,7 +3790,7 @@ async function getCampData(username) {
         const connection = await mysql2.createConnection({
             host: 'localhost', // Replace with your database server hostname/IP
             user: 'root', // Replace with your database username
-            password: '', // Replace with your database password
+            password: 'root', // Replace with your database password
             database: 'heisei1' // Optional - Replace with database name if needed
         });
         const [rows] = await connection.query(`SELECT * FROM ${username+'list'}`); 
@@ -3869,7 +4113,7 @@ async function getCommodityList() {
         const connection = await mysql2.createConnection({
             host: 'localhost', // Replace with your database server hostname/IP
             user: 'root', // Replace with your database username
-            password: '', // Replace with your database password
+            password: 'root', // Replace with your database password
             database: 'heisei1' // Optional - Replace with database name if needed
         });
         const [rows] = await connection.query(`SELECT * FROM commoditytable`); 
@@ -3911,7 +4155,7 @@ async function getCampvolData(username) {
         const connection = await mysql2.createConnection({
             host: 'localhost', // Replace with your database server hostname/IP
             user: 'root', // Replace with your database username
-            password: '', // Replace with your database password
+            password: 'root', // Replace with your database password
             database: 'heisei1' // Optional - Replace with database name if needed
         });
         const [rows] = await connection.query(`SELECT * FROM ${username}`);
@@ -3971,6 +4215,12 @@ app.post('/campvolcommoditystatus', async (req, res) => {
             res.status(500).send('Internal Server Error');
             return;
         }
+        connection.beginTransaction(async (err) => {
+            if (err) {
+                console.error('Error starting transaction: ' + err.message);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
        for(let i=0;i<status.length;i++) {
             if(status[i]=='Received') {
 
@@ -4001,17 +4251,6 @@ app.post('/campvolcommoditystatus', async (req, res) => {
                     }
                 });
                 }); 
-
-            try{
-                let result=await confirmTranscBlock( R[0].receivedfrom,Result33[0].transactionID);//888888888888888888888
-                if(result.startsWith("Error")){
-                    res.render('error', { error: result });
-                    return;
-                }
-            }catch(error){
-                res.render('error', { error});
-                return;
-            }
 
             const [Result,Result1] = await Promise.all([
             new Promise((resolve, reject) => {
@@ -4055,18 +4294,46 @@ app.post('/campvolcommoditystatus', async (req, res) => {
                 return;
             }
         });  
-            const query4 = `UPDATE volcamphistory set status='Received' where username=? and commodityno=? and quantity=? and sendto=? and date=? and status='Not_received' LIMIT 1`;
-            connection.query(query4, [receivedfrom1,commodityno1,quantity1,username,date1], (error, results) => {
-                if (error) {
-                    console.error('Error executing query: ' + error.message);
-                    res.status(500).send('Internal Server Error');
-                    return;
-                }
-            }); 
+        const query4 = `UPDATE volcamphistory set status='Received' where username=? and commodityno=? and quantity=? and sendto=? and date=? and status='Not_received' LIMIT 1`;
+        connection.query(query4, [receivedfrom1,commodityno1,quantity1,username,date1], (error, results) => {
+            if (error) {
+                console.error('Error executing query: ' + error.message);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+        }); 
+
+        try{
+            let result=await confirmTranscBlock( R[0].receivedfrom,Result33[0].transactionID,username);//888888888888888888888
+            if(result.startsWith("Error")){
+                //Rollback MySQL changes on failure
+                connection.rollback(() => {
+                    connection.release();
+                });
+                res.render('error', { error: result });
+                return;
+            }
+        }catch(error){
+            //Rollback MySQL changes on failure
+            connection.rollback(() => {
+                connection.release();
+            });
+            res.render('error', { error});
+            return;
+        }
+
         }
     }
-    connection.release();
+    //Commit MySQL transaction
+    connection.commit((err) => {
+        if (err) {
+            console.error('Error committing transaction: ' + err.message);
+            res.status(500).send({ error: 'Transaction commit failed' });
+        }
+        connection.release();
+    });
     res.redirect(`/campvol-details?token=${token}`);
+    });
     });
     });
     }else {
@@ -4102,20 +4369,14 @@ app.post('/campcommoditysend', async (req, res) => {
             res.status(500).send('Internal Server Error');
             return;
         }
-        for(let i=0;i<commodityno.length;i++) {
-            if(quantity[i]>0) {
-            
-            let result;
-            try{
-                result=await sendTranscBlock(username,sendto[i],'leftover',commodity[i],quantity[i]);//888888888888888888888
-                if(result.startsWith("Error")){
-                    res.render('error', { error: result });
-                    return;
-                }
-            }catch(error){
-                res.render('error', { error});
+        connection.beginTransaction(async (err) => {
+            if (err) {
+                console.error('Error starting transaction: ' + err.message);
+                res.status(500).send('Internal Server Error');
                 return;
             }
+        for(let i=0;i<commodityno.length;i++) {
+            if(quantity[i]>0) {
 
             const query1 = `INSERT INTO ${sendto[i]} (commodityno,commodity,quantity,unit,receivedfrom,date) VALUES (?, ?, ?, ?, ?, ?)`;
             connection.query(query1, [commodityno[i],commodity[i],quantity[i],unit[i],username,formattedDate], (error, results) => {
@@ -4124,22 +4385,6 @@ app.post('/campcommoditysend', async (req, res) => {
                     res.status(500).send('Internal Server Error');
                     return;
                 }
-            });
-            const query5 = `SELECT receiveno from ${sendto[i]} where commodityno=? and commodity=? and quantity=? and unit=? and receivedfrom=? and date=? and status=? AND receiveno NOT IN (SELECT receiveno FROM transaction WHERE username=?)LIMIT 1`;
-            connection.query(query5, [commodityno[i],commodity[i],quantity[i],unit[i],username,formattedDate,'Not_available',sendto[i]], (error, results) => {
-                if (error) {
-                    console.error('Error executing query: ' + error.message);
-                    res.status(500).send('Internal Server Error');
-                    return;
-                }
-                const query6 = `INSERT INTO transaction (username,receiveno,transactionID) VALUES (?, ?, ?)`;
-                connection.query(query6, [sendto[i],results[0].receiveno,result], (error, results) => {
-                    if (error) {
-                        console.error('Error executing query: ' + error.message);
-                        res.status(500).send('Internal Server Error');
-                        return;
-                    }
-                });
             });
             const query2 = `UPDATE ${username+'list'} set stock=stock-? where commodityno=?`;
             connection.query(query2, [quantity[i],commodityno[i]], (error, results) => {
@@ -4157,10 +4402,55 @@ app.post('/campcommoditysend', async (req, res) => {
                     return;
                 }
             });
+            
+            let result;
+            try{
+                result=await sendTranscBlock(username,sendto[i],'leftover',commodity[i],quantity[i]);//888888888888888888888
+                if(result.startsWith("Error")){
+                    //Rollback MySQL changes on failure
+                    connection.rollback(() => {
+                        connection.release();
+                    });
+                    res.render('error', { error: result });
+                    return;
+                }
+            }catch(error){
+                //Rollback MySQL changes on failure
+                connection.rollback(() => {
+                    connection.release();
+                });
+                res.render('error', { error});
+                return;
+            }
+
+            const query5 = `SELECT receiveno from ${sendto[i]} where commodityno=? and commodity=? and quantity=? and unit=? and receivedfrom=? and date=? and status=? AND receiveno NOT IN (SELECT receiveno FROM transaction WHERE username=?)LIMIT 1`;
+            connection.query(query5, [commodityno[i],commodity[i],quantity[i],unit[i],username,formattedDate,'Not_available',sendto[i]], (error, results) => {
+                if (error) {
+                    console.error('Error executing query: ' + error.message);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+                const query6 = `INSERT INTO transaction (username,receiveno,transactionID) VALUES (?, ?, ?)`;
+                connection.query(query6, [sendto[i],results[0].receiveno,result], (error, results) => {
+                    if (error) {
+                        console.error('Error executing query: ' + error.message);
+                        res.status(500).send('Internal Server Error');
+                        return;
+                    }
+                });
+            });
         }
         }
-    connection.release();
+    //Commit MySQL transaction
+    connection.commit((err) => {
+        if (err) {
+            console.error('Error committing transaction: ' + err.message);
+            res.status(500).send({ error: 'Transaction commit failed' });
+        }
+        connection.release();
+    });
     res.redirect(`/camplist-details?token=${token}`);
+    });
     });
     });
     }else {
@@ -4175,7 +4465,7 @@ async function getCampSend(username) {
         const connection = await mysql2.createConnection({
             host: 'localhost', // Replace with your database server hostname/IP
             user: 'root', // Replace with your database username
-            password: '', // Replace with your database password
+            password: 'root', // Replace with your database password
             database: 'heisei1' // Optional - Replace with database name if needed
         });
         const [rows] = await connection.query(`SELECT * FROM volcamphistory where username='${username}' `); 
@@ -4194,7 +4484,7 @@ async function getCampReq(username) {
         const connection = await mysql2.createConnection({
             host: 'localhost', // Replace with your database server hostname/IP
             user: 'root', // Replace with your database username
-            password: '', // Replace with your database password
+            password: 'root', // Replace with your database password
             database: 'heisei1' // Optional - Replace with database name if needed
         });
         const [rows] = await connection.query(`SELECT * FROM campslists where username='${username}' ORDER BY timestamp DESC`); 
@@ -4230,6 +4520,60 @@ app.get('/camp-history', async (req, res) => {
         return res.status(500).send('Error fetching history data');
       }
     res.render('camphistory', { campSend,campReq,username,token });
+});
+////////////////////////////////////////////////////////////////////////////////////////////
+
+//camp requests cancel button form//////////////////////////////////////////////////////////////
+app.post('/cancelRequest',async (req, res) => {
+    //username=usernameconst1;
+    const token=req.body.token;
+    if(token) {
+        jwt.verify(token,secretKey,async(err,decoded) => {
+            if(err) {
+                res.redirect('/login.html');
+            }
+        const username = decoded.username;
+
+        const { commodity, timestamp} = req.body;
+        const formattedDateTime = formatDateTime(timestamp)
+        console.log(username,commodity, formattedDateTime);
+
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error connecting to database: ' + err.message);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        
+        const query1 = "SELECT * FROM campslists WHERE commodity=? AND timestamp=? AND username=?";
+        connection.query(query1, [commodity,formattedDateTime, username], (error, results) => {
+            if (error) {
+                console.error("Error executing query:", error.message);
+                return res.json({ success: false });
+            }
+            const query2 = `UPDATE ${username+'list'} set additionrequired=additionrequired-? WHERE commodity=?`;
+            connection.query(query2, [results[0].additionrequired,commodity], (error, results1) => {
+                if (error) {
+                    console.error("Error executing query:", error.message);
+                    return res.json({ success: false });
+                }
+            });
+        });
+
+        const query = "DELETE FROM campslists WHERE commodity=? AND timestamp=? AND username=?";
+        connection.query(query, [commodity,formattedDateTime, username], (error, results) => {
+            if (error) {
+                console.error("Error executing query:", error.message);
+                return res.json({ success: false });
+            }
+            res.json({ success: true });
+        });
+        connection.release();
+    });
+    });
+    }else {
+        res.redirect('/login.html');
+    }
 });
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -4329,6 +4673,20 @@ function getFormattedTimestamp() {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 ////////////////////
+
+//timestamp Sat Mar 15 2025 16:07:09 GMT+0530 (India Standard Time) to 2025-03-15 16:07:09 return//////////////////////
+function formatDateTime(dateString) {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+//////////////////////
 
 //timestamp difference return///////////////////
 function getMinutesDifference(timestamp1, timestamp2) {
@@ -4645,6 +5003,12 @@ app.get('/volunteer-request', async (req, res) => {
                     routeDetails2 = await getRouteDetails(Result3[j], campCoord);
                     if (!routeDetails2) {
                         return res.redirect(`/dinosaur-game.html?token=${token}`); 
+                    }
+                    if(routeDetails0.duration<=globalDurationParameter*Result3[j].duration){
+                        totalDuration = routeDetails0.duration;
+                        minimumDuration[i] = totalDuration;
+                        sendto[i] = "Direct camp";
+                        break;
                     }
                     if(routeDetails0.duration>=routeDetails2.duration) {
                         if(totalDuration>Result3[j].duration + routeDetails2.duration) {
@@ -5180,9 +5544,35 @@ app.get('/search-name', (req, res) => {
 //https://heiseichain-pro.onrender.com/api/blockchain/creation
 //https://heiseichain-pro.onrender.com/api/blockchain/confirm
 
+//SignIn and Encryption////////////////////////////////////////////
+// Load Java's public key (Ensure it's PEM formatted)
+const publicKey = fs.readFileSync("java_public.pem", "utf8");
+// Load WebApp Private Key (for signing)
+const privateKey = fs.readFileSync("webapp_private.pem", "utf8");
+// Encrypt Data
+function encryptData(data) {
+    const buffer = Buffer.from(JSON.stringify(data)); // Convert data to Buffer
+    return crypto.publicEncrypt(
+        {
+            key: publicKey,
+            padding: crypto.constants.RSA_PKCS1_OAEP_PADDING, // Ensure correct padding
+            oaepHash: "sha256"
+        },
+        buffer
+    ).toString("base64"); // Convert encrypted buffer to Base64 string
+}
+// Sign Data
+function signData(data) {
+    const signer = crypto.createSign("sha256");
+    signer.update(data);
+    signer.end();
+    return signer.sign(privateKey, "base64"); // Returns base64 signature
+}
+//////////////////////////////////////////////////////////////////
+
 //user registration/////////////////////////
-const userRegistrationBlockchain = () => {
-    pool.getConnection((err, connection) => {
+const userRegistrationBlockchain = async() => {
+    pool.getConnection(async (err, connection) => {
         if (err) {
             console.error('Database connection error:', err.message);
             return;
@@ -5197,14 +5587,21 @@ const userRegistrationBlockchain = () => {
             }
 
             if (results.length > 0) {
+
                 for (const result of results) {
                     const data = {
-                        username: result.username,
-                        role: result.category
+                        username:result.username,
+                        role:result.category
                     };
 
+                    const encryptedData = encryptData(data);
+                    const signature = signData(encryptedData);
+                    
                     try {
-                        const response = await axios.post('https://heiseichain-pro.onrender.com/api/blockchain/register', null, { params: data });
+                        const response = await axios.post("https://heiseichain-pro.onrender.com/api/blockchain/register", 
+                            { encryptedData, signature },  // Send encrypted data and signature in the request body
+                            { headers: { "Content-Type": "application/json" } }
+                        );
                         console.log('Success:', response.data);
                     } catch (error) {
                         console.error('Error:', error.response?.data || error.message);
@@ -5223,53 +5620,121 @@ const userRegistrationBlockchain = () => {
 //////////////////////////////////
 
 //initial transaction////////
-async function sendTranscBlock( senderUsername, receiverUsername, transactionType, commodity, quantity) {
-    const data = new URLSearchParams();
-    data.append("senderUsername", senderUsername);
-    data.append("recipientUsername", receiverUsername);
-    data.append("value", quantity);
-    data.append("transactionType", transactionType);
-    data.append("commodity", commodity);
+async function sendTranscBlock(senderUsername, receiverUsername, transactionType, commodity, quantity) {
+    const data = {
+        senderUsername: String(senderUsername),  // Ensure string
+        recipientUsername: String(receiverUsername),  // Ensure string
+        value: String(quantity),  // Ensure string if needed
+        transactionType: String(transactionType),
+        commodity: String(commodity)
+    };
+    
+    const encryptedData = encryptData(data);
+    const signature = signData(encryptedData);
 
-    return axios.post('https://heiseichain-pro.onrender.com/api/blockchain/creation', data, {
-        headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    })
-      .then(response => { console.log('Transaction Carried:', response.data); return response.data;})
-     // .catch(error => error.response?.data || error.message);
-      .catch(error => {
-        // Log error to the console
+    try {
+        const response = await axios.post('https://heiseichain-pro.onrender.com/api/blockchain/creation', 
+            { encryptedData, signature }, 
+            { headers: { "Content-Type": "application/json" } }
+        );
+
+        console.log('Transaction Carried:', response.data);
+        return response.data; // Ensures the calling function waits for the result
+    } catch (error) {
         let errorMessage = error.response?.data || error.message;
         console.error('Transaction Error:', errorMessage);
-        // Return the error message to the function call (ensure it's a string)
-        errorMessage = `Error: ${error.response.data.error} (Status: ${error.response.status}) at ${error.response.data.path}`;
-        return errorMessage ? errorMessage : 'Error occurred.';
-      });
+
+        // Ensure errorMessage is a string
+        if (error.response) {
+            errorMessage = `Error: ${error.response.data.error} (Status: ${error.response.status}) at ${error.response.data.path}`;
+        }
+
+        return errorMessage || 'Error occurred.';
+    }
 }
 /////////////////////////////////
 
 //confirm transaction////////
-async function confirmTranscBlock( receivedfrom,transactionID) {
-    const data = new URLSearchParams();
-    data.append("senderUsername", receivedfrom);
-    data.append("transactionID", transactionID);
+async function confirmTranscBlock(receivedfrom, transactionID, username = null) {
+    const data = {
+        senderUsername: receivedfrom,
+        transactionID: transactionID
+    };
 
-    return axios.post('https://heiseichain-pro.onrender.com/api/blockchain/confirm', data, {
-        headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+    const encryptedData = encryptData(data);
+    const signature = signData(encryptedData);
+
+    try {
+        const response = await axios.post('https://heiseichain-pro.onrender.com/api/blockchain/confirm', 
+            { encryptedData, signature }, 
+            { headers: { "Content-Type": "application/json" } }
+        );
+
+        console.log('Transaction Success:', response.data);
+
+        // Wait for campNotifyDonor if response starts with ACK
+        if (response.data.trim().startsWith("ACK")) {
+            await campNotifyDonor(response.data.trim(), username);
         }
-    })
-      .then(response => { console.log('Transaction Success:', response.data); return response.data;})
-     // .catch(error => error.response?.data || error.message);
-      .catch(error => {
-        // Log error to the console
+
+        return response.data;
+    } catch (error) {
         let errorMessage = error.response?.data || error.message;
         console.error('Transaction Error:', errorMessage);
-        // Return the error message to the function call (ensure it's a string)
-        errorMessage = `Error: ${error.response.data.error} (Status: ${error.response.status}) at ${error.response.data.path}`;
-        return errorMessage ? errorMessage : 'Error occurred.';
-      });
+
+        // Ensure errorMessage is a string
+        if (error.response) {
+            errorMessage = `Error: ${error.response.data.error} (Status: ${error.response.status}) at ${error.response.data.path}`;
+        }
+
+        return errorMessage || 'Error occurred.';
+    }
+}
+/////////////////////////////////
+
+//camp confirm donor notify////////
+async function campNotifyDonor(notification,camp) {
+    let words = notification.trim().split(/\s+/);
+    let commodity=words[1];
+    let subject = 'Your Donation Delivered!';
+    for(let i=2;i<words.length;i++){
+    let username = words[i];
+    i++;
+    let quantity=words[i];
+    
+    pool.getConnection(async(err, connection) => {
+        if (err) {
+            console.error('Error connecting to database: ' + err.message);
+            return false;
+        }
+        let result1 = await new Promise((resolve, reject) => {
+            const query1 = `SELECT email from login where username=? and category='donor'`;
+            connection.query(query1,[username], (error, results) => {
+              if (error) reject(error);
+              else resolve(results);
+            });
+          });
+          let result2 = await new Promise((resolve, reject) => {
+            const query2 = `SELECT * from camps where username=?`;
+            connection.query(query2,[camp], (error, results) => {
+              if (error) reject(error);
+              else resolve(results);
+            });
+          });
+        connection.release();
+
+        let email=result1[0].email;
+        let message = `From Team HEISEI,<br>Username: ${username}<br>Your donation ${commodity} of quantity ${quantity} has been delivered to camp ${camp}, ${result2[0].location}, ${result2[0].pinno}.`;
+
+        try {
+            await sendTutanotaEmail(email, subject, message);
+        } catch (error) {
+            console.error('Failed to send OTP:', error);
+            return false;
+        }
+    });
+    }
+    return true;
 }
 /////////////////////////////////
 

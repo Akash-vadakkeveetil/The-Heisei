@@ -8,7 +8,6 @@
   <style>
     /* General table styles */
     table {
-      width: 100%;
       border-collapse: collapse;
       background-color: #ffffff;
       color: white;
@@ -48,7 +47,7 @@
       text-align: center;
       display: inline-block;
       margin: auto;
-      width: 100px;
+      width: 120px;
     }
 
     /* Center the submit button */
@@ -65,7 +64,7 @@
       border-radius: 5px;
       text-align: center;
       display: inline-block;
-      margin: auto;
+      margin: 2px auto;
       width: 120px;
     }
   </style>
@@ -104,9 +103,9 @@
       <table style="font-size: 1.6em;" border="1">
         <thead>
           <tr style="color:black;">
-            <th style="background-color: #ddd; padding: 5px;">commodity</th>
-            <th style="background-color: #ddd; padding: 5px;">unit</th>
-            <th style="background-color: #ddd; padding: 5px;">quantity</th>
+            <th style="background-color: #ddd; padding: 5px;width: 500px;">commodity</th>
+            <th style="background-color: #ddd; padding: 5px; width: 200px;">Unit</th>
+            <th style="background-color: #ddd; padding: 5px;width: 150px;">quantity</th>
           </tr>
         </thead>
         <tbody>
@@ -125,7 +124,7 @@
               </span>
           </td>
           <input type="hidden" name="token" id="token" value="<%= token %>">
-          <td><button id="clear-storage" type="button">Clear All</button>  <input type="submit" value="Donate"></td>
+          <td><button id="clear-storage" type="button">Clear All</button><br><input type="submit" value="Donate"></td>
           </tr>
           </form>
         </tbody>

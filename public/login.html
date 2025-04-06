@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login Page</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<style>
+    canvas#myChart {
+    display: block;
+    width: 40%; /* Ensures it takes proper space */
+    max-width: 20%;
+    margin-top: 40px;  /* Centers it */
+    margin-right: 900px;
+}
+</style>
 </head>
 <body>
 <div class="area" >
@@ -13,12 +24,13 @@
                 <li></li>
                 <li></li>
                 <li></li>
-                <h1>HEISEI</h1>
-                <h3> </h3>
-                <h2> </h2>
             
+                <h1 style="margin-top: 160px;">HEISEI</h1>
                 <h3>Revolutionizing Resource Supply</h3>
-                <center>
+                
+                <h3 style="display:flex;"><canvas id="myChart"></canvas></h3>
+
+                <center style="margin-top: -400px;">
                     <div class="login-container">
                         <h2>Login</h2>
                         <form action="/login" method="post">
@@ -36,7 +48,8 @@
                             <a href="about.html">About</a>
                         </p>
                     </div>
-                </center>                
+                </center> 
+
                 <li></li>
                 <li></li>
                 <li></li>
@@ -44,6 +57,56 @@
                 <li></li>
                 <li></li>
         </ul>
+
+        <script>
+            Chart.register(ChartDataLabels); // Register DataLabels Plugin
+
+            let ctx = document.getElementById('myChart').getContext('2d');
+            let myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Held by volunteers', 'Delivered to camps'],
+                    datasets: [{
+                        data: [100, 0], // Default: Full grey circle
+                        backgroundColor: ['#b0b0b0', '#b0b0b0'], // Default grey color
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: 'white'
+                            }
+                        },
+                        datalabels: {
+                            color: 'white',
+                            font: { size: 16 },
+                            formatter: (value) => `${value}%`, // Show percentage
+                            anchor: 'center',
+                            align: 'center'
+                        }
+                    }
+                }
+            });
+
+            fetch('https://heiseichain-pro.onrender.com/api/blockchain/donationPercentage')
+                .then(response => response.json())
+                .then(data => {
+                    if (typeof data === 'number' && data >= 0 && data <= 1) {
+                        let percentagevol = (data * 100.0).toFixed(2); 
+                        let percentagecamp = (100.0 - percentagevol).toFixed(2); 
+                        myChart.data.datasets[0].data = [percentagevol,percentagecamp ];
+                        myChart.data.datasets[0].backgroundColor = ['#3498db', '#e74c3c']; // Update to actual colors
+                    }
+                    myChart.update(); // Refresh chart with new values
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        </script>
 
         <script>
         document.addEventListener('DOMContentLoaded', function () {

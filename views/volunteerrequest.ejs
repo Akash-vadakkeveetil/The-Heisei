@@ -232,9 +232,13 @@
             <td style="padding: 5px; color:black;"><%= item.additionrequired %></td>
             <td style="padding: 5px; color:black;"><%= item.collected %></td>
             <td style="padding: 5px; color:black;"><%= item.additionrequired-item.collected %></td>
+            <% if (item.sendto != "Direct camp") { %>
             <td style="padding: 5px; color: blue; cursor: pointer; position: relative;" 
             onmouseover="showTooltip(event, 'Click to view map')" 
             onmouseout="hideTooltip()" onclick="fetchLocation('<%= item.sendto %>')"><%= item.sendto %></td>
+            <% } else { %>
+            <td style="padding: 5px; color:black;"><%= item.sendto %></td>
+            <% } %>
           </tr>
           <% } %>
         <% } %>

@@ -5,6 +5,79 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Camp-History</title>
   <link rel="stylesheet" href="donor.css">
+  <style>
+    /* General table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      color: white;
+    }
+  
+    /* Style table rows and cells */
+    .stock-row {
+      color: white;
+    }
+  
+    td {
+      padding: 8px;
+      text-align: center; /* Center-align all cells */
+      border: 1px solid #555; 
+      font-size: 16px;
+    }
+  
+    /* Universal style for all form controls */
+    input, select, textarea {
+      width: 90%; /* Adjust the width for uniformity */
+      padding: 4px;
+      text-align: center;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #ffffff; /* Light background for visibility */
+      color: #333; /* Dark text for readability */
+    }
+  
+    /* Style submit button */
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="number"],
+    input[type="password"],
+    input[type="email"] {
+      border: 1px solid #cccccc; /* Same border for all */
+    }
+    /* Center the submit button */
+    .center-submit {
+      text-align: center;
+    }
+    button {
+      background-color: #ef4242;
+      color: rgb(255, 255, 255);
+      font-size: 2.1ch;
+      cursor: pointer;
+      border-width:2px;
+      border-color: black;
+      padding: 5px 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: inline-block;
+      margin: auto;
+      width: 120px;
+    }
+  </style>  
 </head>
 <body>
 
@@ -39,31 +112,37 @@
     <h1>Requested</h1>
 
     <% if (campReq && campReq.length) { %>
-      <table style="font-size: 1.6em;">
+      <table style="font-size: 1.6em;" border="1">
         <thead>
           <tr style="color:black;">
+            <th style="background-color: #ddd; padding: 5px;">date & time</th>
             <th style="background-color: #ddd; padding: 5px;">commodity</th>
             <th style="background-color: #ddd; padding: 5px;">quantity</th>
-            <th style="background-color: #ddd; padding: 5px;">date</th>
+            <th style="background-color: #ddd; padding: 5px;">unit</th>
             <th style="background-color: #ddd; padding: 5px;">within days</th>
+            <th style="background-color: #ddd; padding: 5px;">status</th>
           </tr>
         </thead>
         <tbody>
+          <form>
           <% for (const item of campReq) { %>
-          <tr class="stock-row" style="color: white;">
-            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.commodity %></td>
-            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.additionrequired %></td>
-            <td style="background-color: #ddd; padding: 5px; color:black;">
-              <%- new Date(item.timestamp).toLocaleDateString('en-US', {
-                weekday: 'short',  // Display abbreviated weekday (e.g., Mon)
-                year: 'numeric',    // Display full year (e.g., 2024)
-                month: 'long',      // Display full month name (e.g., May)
-                day: 'numeric'     // Display numeric day (e.g., 9)
-            }) %> 
+          <tr class="stock-row">
+            <td><input type="datetime-local" value="<%= formatDateTimeLocal(item.timestamp) %>" disabled></td>
+            <td><input type="text" name="commodity" id="commodity" value="<%= item.commodity %>" disabled></td>
+            <td><input type="number" name="additionrequired" id="additionrequired" value="<%= item.additionrequired %>" disabled></td>
+            <td><input type="text" name="unit" id="unit" value="<%= item.unit %>" disabled></td>
+            <td><input type="number" name="expecton" id="expecton" value="<%= item.expecton %>" disabled></td>
+            <% if (item.gathered==item.additionrequired) { %>
+            <td><input type="text" value="Order Complete: on the way/received" disabled></td>
+            <% } else { %>
+            <td>
+              <input type="text" value="<%= item.gathered %><%= item.unit %>: on the way/received" disabled>
+              <button class="cancel-btn" data-commodity="<%= item.commodity %>" data-timestamp="<%= item.timestamp %>" data-token="<%= token %>" type="button" title="click to cancel this request">Cancel</button>
             </td>
-            <td style="background-color: #ddd; padding: 5px; color:black;"><%= item.expecton %></td>
+            <% } %>
           </tr>
           <% } %>
+        </form>
         </tbody>
       </table>
     <% } else if (!campReq && campReq.length) { %>
@@ -72,10 +151,10 @@
 
 <br><br>
 
-<h1>Send</h1>
+<h1>Left-over Send</h1>
 
     <% if (campSend && campSend.length) { %>
-      <table style="font-size: 1.6em;">
+      <table style="font-size: 1.6em;" border="1">
         <thead>
           <tr style="color:black;">
             <th style="background-color: #ddd; padding: 5px;">commodityno</th>
@@ -118,6 +197,48 @@
     <p> </p>
     </footer>
 
+    <!-- ejs function -->
+    <% function formatDateTimeLocal(timestamp) {
+        const date = new Date(timestamp);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    } %>
+
+   
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".cancel-btn").forEach(button => {
+          button.addEventListener("click", function () {
+            const okCancel = confirm("Proceed to cancel the request?");
+              if (okCancel) {
+              const commodity = this.getAttribute("data-commodity");
+              const timestamp = this.getAttribute("data-timestamp");
+              const token = this.getAttribute("data-token");
+  
+              fetch("/cancelRequest", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ commodity, timestamp, token })
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      alert("Request canceled successfully!");
+                      location.reload();
+                  } else {
+                      alert("Error canceling request!");
+                  }
+              })
+              .catch(error => console.error("Error:", error));
+            }
+          });
+      });
+  });
+  </script>
 
   </div>
 

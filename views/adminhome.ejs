@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin-Home</title>
   <link rel="stylesheet" href="donor.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   <style>
     /* Style table rows and cells */
     .stock-row {
@@ -168,6 +169,12 @@ th {
     background-color: #f4f4f4;
     font-weight: bold;
 }
+#map { 
+    height: 90vh; /* Set to 90% of the viewport height */
+    width: 90%;
+    min-height: 600px; /* Ensure a minimum height */
+}
+
   </style>
 </head>
 <body>
@@ -213,13 +220,19 @@ th {
         </div>
     </div>
 
-    <h2 style="color:black; margin-bottom: 20px; ">Camps & Volunteers</h2>
+    <h2 style="color:black; margin-bottom: 20px; ">Donors, Camps & Volunteers</h2>
       <form> 
 
             <div class="form-group">
-                <label for="totalCamps">Total Camps</label>
-                <input type="number" name="totalCamps" id="totalCamps" value="<%= totalCamps %>" disabled>
-                <button class="info-btn" onclick="fetchDetails('camps', event)" title="see details">ℹ️</button>
+                <label for="totalDonors">Total Donors</label>
+                <input type="number" name="totalDonors" id="totalDonors" value="<%= totalDonors %>" disabled>
+                <button class="info-btn" onclick="fetchDetails('donors', event)" title="see details">ℹ️</button>
+            </div> 
+
+            <div class="form-group">
+              <label for="totalCamps">Total Camps</label>
+              <input type="number" name="totalCamps" id="totalCamps" value="<%= totalCamps %>" disabled>
+              <button class="info-btn" onclick="fetchDetails('camps', event)" title="see details">ℹ️</button>
             </div> 
 
         <div class="form-container">
@@ -247,13 +260,63 @@ th {
         </div>          
       </form> 
 
+      <br><br><h2 style="color:black; margin-bottom: 20px; ">Camps & Volunteers Map</h2><br><br>
+      <div id="map"></div>
+
     <br>
         <footer class="page-footer">
         <br><br><br><br><br><br>
     <p> </p>
     </footer>
          
-    
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+
+            // Fetch location data from the backend
+            try {
+                const response = await fetch('/getMapData');
+                const { campMap, volColMap, volGatMap } = await response.json();
+
+                // Default to first camp location or fallback to a general position
+                const initialLat = campMap.length > 0 ? campMap[0].latitude : 20.5937;
+                const initialLon = campMap.length > 0 ? campMap[0].longitude : 78.9629;
+
+                // Initialize the map centered on a camp
+                const map = L.map('map').setView([initialLat, initialLon], 7); 
+
+                // OpenStreetMap tile layer
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+
+                // Custom icon colors
+                const icons = {
+                    camp: L.icon({ iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png', iconSize: [30, 30] }),
+                    volCol: L.icon({ iconUrl: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png', iconSize: [30, 30] }),
+                    volGat: L.icon({ iconUrl: 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png', iconSize: [30, 30] })
+                };
+
+                // Function to add markers
+                function addMarkers(data, iconType, type) {
+                    data.forEach(({ username, latitude, longitude }) => {
+                        L.marker([latitude, longitude], { icon: icons[iconType] })
+                            .addTo(map)
+                            .bindPopup(`<b>${type}</b><br>${username}`);
+                    });
+                }
+
+                // Add markers for each category
+                addMarkers(campMap, 'camp', 'Camp');
+                addMarkers(volColMap, 'volCol', 'Volunteer Collector');
+                addMarkers(volGatMap, 'volGat', 'Volunteer Gatherer');
+
+            } catch (error) {
+                console.error("Error fetching map data:", error);
+            }
+        });
+    </script>
+
     <script>
         function fetchDetails(type, event) {
     event.stopPropagation(); // Stops event from bubbling
@@ -289,7 +352,28 @@ th {
                         </tr>
                     `;
                 });
-            } else {
+            }
+            else if (type === "donors") {
+                modalTableHead.innerHTML = `
+                    <tr>
+                        <th>Username</th>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th>Contact</th>
+                    </tr>
+                `;
+                data.forEach(item => {
+                    modalTableBody.innerHTML += `
+                        <tr>
+                            <td>${item.username}</td>
+                            <td>${item.donorname}</td>
+                            <td>${item.location}, ${item.pinno}</td>
+                            <td>${item.contactnumber}</td>
+                        </tr>
+                    `;
+                });
+            }
+             else {
                 modalTableHead.innerHTML = `
                     <tr>
                         <th>Username</th>

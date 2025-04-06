@@ -135,6 +135,30 @@ button:disabled {
     color: black;
     padding-left: 20px; /* Indent commodities */
   }
+  .radio-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0px; /* Space between elements */
+    width: 35%;
+    margin-top: 0px;
+  }
+ .radio-container label {
+    font-size: 1.1em;
+    color: black;
+    margin-right: -20px; /* Reduce gap between label and radio button */
+  }
+  button[type="submit"]{
+        font-size: 18px;
+        color: #ffffff;
+        width: calc(10%);
+        background-color: navy;
+        padding: 8px;
+        margin-left: 0%;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        cursor: pointer; /* Add pointer cursor for better UX */
+    }
   </style>
 </head>
 <body>
@@ -193,6 +217,27 @@ button:disabled {
 
       <div style="height: 15px;width: 100%; background-color: #2d195eb0;color: #2d195eb0; margin: 20px 0;">-</div><br>
 
+      <h1 style="color:black; ">Personalized Transaction View</h1>
+      <form id="csvUploadForm2" style="margin-top: 0px; align-items: center;">
+        <input style="width: 400px;" type="file" id="csvFile2" accept=".csv" required>
+        <br>
+        <div class="radio-container">
+          <label style="margin-right: 10px;">View:</label>
+          <label for="all">All Users</label>
+          <input style="margin-right: 25px;" type="radio" name="user" id="all" value="all" checked onchange="toggleFields()">
+          <label for="one">One User</label>
+          <input style="margin-right: 25px;" type="radio" name="user" id="one" value="one" onchange="toggleFields()">
+        </div>
+          <!--One User field -->
+        <div id="one-field" style="display: none;">
+        <input type="text" name="trackname" id="trackname" placeholder="Enter Username" style="width: 100%;">
+        </div>
+        <button type="submit">View</button>
+      </form>
+      <div id="resultContainer" style="color: black;"></div>
+
+      <div style="height: 15px;width: 100%; background-color: #2d195eb0;color: #2d195eb0; margin: 20px 0;">-</div><br>
+
       <h1 style="color:black; margin-bottom: -10px;">Blockchain Volunteer Stocks</h1>
       <pre style="color: black; font-size: 2.5ch; font-weight: bold; text-decoration: underline;">Wallet Commodity Holdings</pre><br>
         <div id="formattedText"></div>
@@ -202,6 +247,175 @@ button:disabled {
         <br><br><br><br><br><br>
     <p> </p>
     </footer>
+
+    <script>
+      function toggleFields() {
+            const locationMethod = document.querySelector('input[name="user"]:checked').value;
+
+            if (locationMethod === "all") {
+                document.getElementById('one-field').style.display = 'none';
+            } else if (locationMethod === "one") {
+                document.getElementById('one-field').style.display = 'block';
+            }
+        }
+
+      document.getElementById('csvUploadForm2').addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const locationMethod = document.querySelector('input[name="user"]:checked').value;
+        const resultContainer = document.getElementById('resultContainer'); // Get the result div
+        resultContainer.innerHTML = ""; // Clear previous results
+        const fileInput = document.getElementById('csvFile2');
+        if (!fileInput.files.length) {
+            alert("Please select a CSV file!");
+            return;
+        }
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        const reader1 = new FileReader();
+        let isUnconfirmedTable = false; // Flag to switch between tables
+
+        let names=[];
+        if (locationMethod === "all") {
+
+        reader1.onload = function (e) {
+          const csvData = e.target.result;
+          const rows = csvData.split("\n").map(row => row.split(",").map(cell => cell.trim()));
+
+          rows.forEach(row => {
+              if (row[0] === "" && !isUnconfirmedTable) {
+                  isUnconfirmedTable = true;
+                  return;
+              }
+
+              if (row.includes("Number") || row.includes("Block Number")) {
+                  return; // Skip header rows
+              }
+
+              let sender = isUnconfirmedTable ? row[1] : row[4]; 
+              let recipient = isUnconfirmedTable ? row[2] : row[5]; 
+
+              if (sender && !names.some(entry => entry[0] === sender)) {
+                  names.push([sender]);
+              }
+              if (recipient && !names.some(entry => entry[0] === recipient)) {
+                  names.push([recipient]);
+              }
+          });
+      };
+      reader1.readAsText(file);
+
+    } else if (locationMethod === "one") {
+        const trackInput=document.getElementById('trackname').value.trim();
+        names.push([trackInput]);
+    }
+
+      reader.onload = function (e) {
+    const csvData = e.target.result;
+    const rows = csvData.split("\n").map(row => row.split(",").map(cell => cell.trim()));
+
+    names.forEach(row => {
+        let trackInput = row[0]; // Get the name
+        let isUnconfirmedTable = false;
+        let matchingRows = [];
+        let flag=0;
+        rows.forEach(row => {
+            if (row[0] == "" && !isUnconfirmedTable) {
+                isUnconfirmedTable = true; // Switch to unconfirmed transactions
+                matchingRows.push(["Unconfirmed Transactions:-"]);
+                flag=1;
+                return;
+            }
+
+            if (row.includes("Number")) return; // Skip headers
+
+            if (row.some(cell => cell.includes(trackInput))) {
+                let sender = isUnconfirmedTable ? row[1] : row[4]; 
+                let recipient = isUnconfirmedTable ? row[2] : row[5]; 
+                let commodity = isUnconfirmedTable ? row[3] : row[6]; 
+                let quantityOrValue = isUnconfirmedTable ? row[4] : row[7]; 
+                let timestamp = isUnconfirmedTable ? row[5] : row[3];
+
+                matchingRows.push([sender, recipient, commodity, quantityOrValue, timestamp]);
+                flag=0;
+            }
+        });
+        if(flag==1){
+          matchingRows.pop();
+        }
+
+        if (matchingRows.length > 0) {
+            const section = document.createElement("div");
+            section.style.marginBottom = "30px";
+
+            // Add Name as Section Header
+            const title = document.createElement("h3");
+            title.textContent = `Transactions for ${trackInput}`;
+            title.style.color = "#2c195e";
+            section.appendChild(title);
+
+            // Create Table
+            const table = document.createElement("table");
+            table.style.width = "100%";
+            table.style.borderCollapse = "collapse";
+            table.style.marginTop = "10px";
+            table.style.border = "2px solid black";
+
+            // Header Row
+            const headerRow = document.createElement("tr");
+            ["Sender", "Recipient", "Commodity", "Quantity", "Timestamp"].forEach(text => {
+                const th = document.createElement("th");
+                th.textContent = text;
+                th.style.border = "2px solid black";
+                th.style.padding = "10px";
+                th.style.backgroundColor = "#f2f2f2";
+                th.style.textAlign = "left";
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+
+            // Data Rows
+            matchingRows.forEach(row => {
+                const tr = document.createElement("tr");
+
+                if (row.length === 1 && row[0] === "Unconfirmed Transactions:-") {
+                    const td = document.createElement("td");
+                    td.colSpan = 5;
+                    td.textContent = row[0];
+                    td.style.fontWeight = "bold";
+                    td.style.border = "1px solid black";
+                    td.style.textAlign = "center";
+                    td.style.backgroundColor = "#f2f2f2";
+                    td.style.padding = "10px";
+                    tr.appendChild(td);
+                } else {
+                    row.forEach(cell => {
+                        const td = document.createElement("td");
+                        td.textContent = cell;
+                        td.style.border = "1px solid black";
+                        td.style.padding = "8px";
+                        td.style.textAlign = "left";
+
+                        if (cell.toLowerCase().includes(trackInput.toLowerCase())) {
+                            td.style.backgroundColor = "#d2d2d2";
+                            td.style.fontWeight = "bold";
+                        }
+
+                        tr.appendChild(td);
+                    });
+                }
+
+                table.appendChild(tr);
+            });
+
+            section.appendChild(table);
+            resultContainer.appendChild(section);
+                }
+            });
+        };
+
+        reader.readAsText(file);
+    });
+  </script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
