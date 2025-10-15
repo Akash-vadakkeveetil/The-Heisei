@@ -103,7 +103,7 @@ High-Level Diagram: Application architecture, services, and database interaction
 Entity Relationship Diagram (ERD): Database schema relationships.
 
 
-
+![Architecture Diagrams](Img/Heise%20architecture%20diagrm.png)
 
 ---
 

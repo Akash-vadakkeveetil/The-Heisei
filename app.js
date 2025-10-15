@@ -1,4 +1,4 @@
-//http://localhost:5000/login.html
+//http://localhost:8000/login.html
 //https://localhost/phpmyadmin/
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -7,7 +7,7 @@ const path = require('path');
 const mysql2 = require('mysql2/promise');
 const ejs = require('ejs');
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8000;
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
