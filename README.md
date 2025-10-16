@@ -60,7 +60,7 @@ Heisei is built on a robust, multi-layered architecture utilizing open-source te
 -----
 ## Architecture Diagram
 
-![arch diagram](IMG/Heise%20architecture%20diagrm.png)
+![arch diagram](Img/Heise%20architecture%20diagrm.png)
 
 
 -----
